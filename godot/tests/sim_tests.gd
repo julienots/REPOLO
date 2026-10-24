@@ -28,13 +28,34 @@ func run(g: GameSim, seconds: float, dt := 1.0 / 20.0) -> void:
 			g.snapshot()
 
 
+func timeline(g: GameSim) -> String:
+	var mons = []
+	for m in g.monsters:
+		mons.append("%s:%s" % [m.type, m.state])
+	var ps = []
+	for p in g.players.values():
+		ps.append("%s:%s%d%s" % [p.name, p.state.substr(0, 1), p.hp, "*" if p.carry != "" else ""])
+	return "t=%ds dep=%d/%d items=%d mon=%s tension=%.2f %s | %s" % [int(g.time), int(g.mission.deposited), int(g.mission.quota), g.items.size(), ",".join(mons), g.director.tension, g.director.phase, " ".join(ps)]
+
+
 func test_bot_game() -> void:
 	var t0 = Time.get_ticks_msec()
 	var g = make_game(1234)
 	var start = {}
 	for p in g.players.values():
 		start[p.id] = Vector2(p.x, p.y)
-	run(g, 240.0)
+	# même pas de temps que scripts/simulate.mjs pour comparer les deux versions
+	var dt = 1.0 / 30.0
+	var next_report = 0.0
+	while not g.mission.ended and g.time < 300.0:
+		g.step(dt)
+		if g.time >= next_report:
+			next_report += 30.0
+			print("    ", timeline(g))
+		var snap = g.snapshot()
+		for m in snap.msgs:
+			if m.k == "announce" and m.kind in ["death", "down"]:
+				print("      [%ds] %s" % [int(g.time), m.text])
 	var moved = 0
 	var noise = 0.0
 	for p in g.players.values():
@@ -45,7 +66,7 @@ func test_bot_game() -> void:
 	runner.check("partie de bots : des créatures sont apparues (%d)" % g.monsters.size(), g.monsters.size() > 0)
 	runner.check("partie de bots : du butin est ramené (%d cr)" % int(g.mission.deposited), g.mission.deposited > 0, "quota %d" % int(g.mission.quota))
 	runner.check("partie de bots : les bots font du bruit", noise > 0)
-	print("    (240 s simulées en %d ms réelles, t=%d, %s)" % [Time.get_ticks_msec() - t0, int(g.time), g.mission.endReason])
+	print("    (%d s simulées en %d ms réelles, fin : %s)" % [int(g.time), Time.get_ticks_msec() - t0, g.mission.endReason])
 
 
 func test_every_monster() -> void:
