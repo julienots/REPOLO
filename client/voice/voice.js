@@ -59,12 +59,14 @@ export class VoiceChat {
     this.micOn = mic && !!this.localTrack;
     this.active = true;
     for (const p of this.peers.values()) this.attachLocal(p);
+    for (const [from, data] of (this.early || []).splice(0)) this.handleSignal(from, data);
     this.send({ t: 'voiceState', on: true });
     return this.micOn;
   }
 
   stop() {
     this.active = false;
+    this.early = [];
     this.micOn = false;
     for (const id of [...this.peers.keys()]) this.closePeer(id);
     if (this.localStream) for (const t of this.localStream.getTracks()) t.stop();
@@ -76,33 +78,40 @@ export class VoiceChat {
   setRadio(v) { this.radioKey = v; }
 
   // Liste des membres du salon ayant le vocal actif → ouverture / fermeture des connexions.
+  // Pour chaque paire, un seul initiateur (ordre des identifiants) : pas de collision d'offres.
   syncMembers(members, myId) {
     this.myId = myId;
     if (!this.active) return;
     const want = new Set(members.filter((m) => m.id !== myId && m.voice && m.connected).map((m) => m.id));
-    for (const id of want) if (!this.peers.has(id)) this.makePeer(id);
+    this.wanted = want;
+    for (const id of want) if (!this.peers.has(id) && this.isInitiator(id)) this.makePeer(id, true);
     for (const id of [...this.peers.keys()]) if (!want.has(id)) this.closePeer(id);
   }
 
-  makePeer(id) {
+  isInitiator(id) { return String(this.myId) < String(id); }
+
+  makePeer(id, initiator) {
+    // confidentialité : couper par défaut les nouveaux venus si l'option est active
+    if (this.settings.autoMuteStrangers && this.settings.mutedPeers[id] === undefined) this.settings.mutedPeers[id] = true;
     const pc = new RTCPeerConnection({ iceServers: this.iceServers });
-    const peer = { id, pc, polite: String(this.myId) > String(id), makingOffer: false, ignoreOffer: false, level: 0, stream: null, nodes: null, state: 'connecting' };
+    const peer = { id, pc, initiator, level: 0, stream: null, nodes: null, state: 'connecting', createdAt: performance.now() };
     this.peers.set(id, peer);
-    peer.transceiver = pc.addTransceiver('audio', { direction: 'sendrecv' });
-    this.attachLocal(peer);
     pc.onicecandidate = (e) => { if (e.candidate) this.send({ t: 'rtc', to: id, data: { ice: e.candidate } }); };
-    pc.onnegotiationneeded = async () => {
-      try {
-        peer.makingOffer = true;
-        await pc.setLocalDescription();
-        this.send({ t: 'rtc', to: id, data: { sdp: pc.localDescription } });
-      } catch (e) { console.warn('[voix] négociation', e); } finally { peer.makingOffer = false; }
-    };
     pc.onconnectionstatechange = () => {
       peer.state = pc.connectionState;
-      if (pc.connectionState === 'failed') pc.restartIce?.();
+      if (pc.connectionState === 'failed' && initiator) pc.restartIce?.();
     };
     pc.ontrack = (e) => this.attachRemote(peer, e.streams[0] || new MediaStream([e.track]));
+    if (initiator) {
+      peer.transceiver = pc.addTransceiver('audio', { direction: 'sendrecv' });
+      this.attachLocal(peer);
+      pc.onnegotiationneeded = async () => {
+        try {
+          await pc.setLocalDescription(await pc.createOffer());
+          this.send({ t: 'rtc', to: id, data: { sdp: pc.localDescription } });
+        } catch (e) { console.warn('[voix] négociation', e); }
+      };
+    }
     return peer;
   }
 
@@ -111,24 +120,50 @@ export class VoiceChat {
     if (sender && this.localTrack && sender.track !== this.localTrack) sender.replaceTrack(this.localTrack).catch(() => {});
   }
 
-  async handleSignal(from, data) {
-    if (!this.active || !data) return;
-    const peer = this.peers.get(from) || this.makePeer(from);
-    const pc = peer.pc;
-    try {
-      if (data.sdp) {
-        const collision = data.sdp.type === 'offer' && (peer.makingOffer || pc.signalingState !== 'stable');
-        peer.ignoreOffer = !peer.polite && collision;
-        if (peer.ignoreOffer) return;
-        await pc.setRemoteDescription(data.sdp);
-        if (data.sdp.type === 'offer') {
-          await pc.setLocalDescription();
-          this.send({ t: 'rtc', to: from, data: { sdp: pc.localDescription } });
-        }
-      } else if (data.ice) {
-        try { await pc.addIceCandidate(data.ice); } catch (e) { if (!peer.ignoreOffer) throw e; }
+  // Les messages de signalisation d'un même pair sont traités dans l'ordre (file d'attente) :
+  // sinon un candidat ICE peut arriver avant la description distante et être perdu.
+  handleSignal(from, data) {
+    if (!data) return;
+    // reçu pendant que le micro s'initialise : on le garde pour plus tard (sinon la connexion se bloque)
+    if (!this.active) { (this.early ||= []).push([from, data]); if (this.early.length > 200) this.early.shift(); return; }
+    this.queues ||= {};
+    this.queues[from] = (this.queues[from] || Promise.resolve()).then(() => this.processSignal(from, data)).catch((e) => console.warn('[voix] signal', e));
+    return this.queues[from];
+  }
+
+  async processSignal(from, data) {
+    let peer = this.peers.get(from);
+    if (data.sdp?.type === 'offer') {
+      // nouvelle offre : (re)création de la connexion côté récepteur
+      if (peer) this.closePeer(from, true);
+      peer = this.makePeer(from, false);
+      const pc = peer.pc;
+      await pc.setRemoteDescription(data.sdp);
+      const tr = pc.getTransceivers().find((t) => t.receiver.track?.kind === 'audio') || pc.getTransceivers()[0];
+      if (tr) { tr.direction = 'sendrecv'; peer.transceiver = tr; this.attachLocal(peer); }
+      for (const c of (this.pendingIce?.[from] || []).splice(0)) await pc.addIceCandidate(c).catch(() => {});
+      await pc.setLocalDescription(await pc.createAnswer());
+      this.send({ t: 'rtc', to: from, data: { sdp: pc.localDescription } });
+    } else if (data.sdp?.type === 'answer') {
+      if (peer && peer.initiator && peer.pc.signalingState === 'have-local-offer') {
+        await peer.pc.setRemoteDescription(data.sdp);
+        for (const c of (this.pendingIce?.[from] || []).splice(0)) await peer.pc.addIceCandidate(c).catch(() => {});
       }
-    } catch (e) { console.warn('[voix] signal', e); }
+    } else if (data.ice) {
+      if (!peer || !peer.pc.remoteDescription) { ((this.pendingIce ||= {})[from] ||= []).push(data.ice); return; }
+      await peer.pc.addIceCandidate(data.ice).catch(() => {});
+    }
+  }
+
+  // Chien de garde : une connexion bloquée est relancée par son initiateur.
+  watchdog() {
+    const now = performance.now();
+    for (const peer of [...this.peers.values()]) {
+      if (peer.state === 'connected') { peer.createdAt = now; continue; }
+      const age = now - peer.createdAt;
+      if (peer.initiator && age > 7000 && this.wanted?.has(peer.id)) { this.closePeer(peer.id, true); this.makePeer(peer.id, true); }
+      else if (!peer.initiator && age > 20000) this.closePeer(peer.id, true);
+    }
   }
 
   attachRemote(peer, stream) {
@@ -163,9 +198,10 @@ export class VoiceChat {
     peer.nodes = { src, analyser, ring, ringDepth, ringOsc, lp, gain, pan, rgain, buf: new Uint8Array(analyser.fftSize) };
   }
 
-  closePeer(id) {
+  closePeer(id, keepIce = false) {
     const p = this.peers.get(id);
     if (!p) return;
+    if (!keepIce && this.pendingIce) delete this.pendingIce[id];
     try { p.pc.close(); } catch { /* ignore */ }
     if (p.nodes) { try { p.nodes.ringOsc.stop(); p.nodes.src.disconnect(); } catch { /* ignore */ } }
     p.el?.remove();
@@ -175,6 +211,7 @@ export class VoiceChat {
   // Appelé à chaque image. view = { inGame, me, players: Map id→{x,y,st,rt,h}, grid, mods, myRadio }
   update(view) {
     const now = performance.now();
+    if (this.active && now - (this.lastWatch || 0) > 1000) { this.lastWatch = now; this.watchdog(); }
     // niveau du micro local
     if (this.analyser) {
       this.analyser.getFloatTimeDomainData(this.buf);

@@ -323,7 +323,7 @@ export class Room {
     this.loop = this.timers.setInterval(() => {
       try {
         const g = this.game;
-        if (!g) return;
+        if (!g || this.state !== 'playing') return;
         g.step(dt);
         tick++;
         if (tick % every === 0 || g.mission.ended) {
@@ -341,6 +341,7 @@ export class Room {
   stopLoop() { if (this.loop) { this.timers.clearInterval(this.loop); this.loop = null; } }
 
   endGame(crashed = false) {
+    if (this.state !== 'playing') return;
     this.stopLoop();
     const res = this.game?.result || (this.game && (this.game.finish('crash'), this.game.result));
     this.lastResult = res ? { ...res, crashed } : null;

@@ -193,7 +193,7 @@ export class Director {
     if (i < 0) return;
     this.active.splice(i, 1);
     runActions(this.game, inst.def.end, inst);
-    if (inst.duration > 0) this.game.announce(`Fin : ${inst.def.name}`, 'end', { eventId: inst.def.id });
+    if (inst.duration >= 15) this.game.announce(`Fin : ${inst.def.name}`, 'end', { eventId: inst.def.id });
     this.recompute();
   }
 

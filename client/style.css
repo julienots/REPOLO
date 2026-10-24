@@ -83,6 +83,7 @@ input:focus, select:focus { border-color: var(--accent); }
 /* ---------- Salon ---------- */
 .lobby-wrap { max-width: 1240px; margin: 0 auto; padding: 14px 16px 30px; }
 .lobby-head { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 12px; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .code-box { display: flex; align-items: center; gap: 12px; background: var(--panel); border: 1px dashed var(--accent); border-radius: 12px; padding: 6px 14px; }
 .code-label { color: var(--muted); font-size: 0.8rem; }
 #lobby-code { font: 2rem var(--title); letter-spacing: 0.25em; color: var(--accent2); }
@@ -271,4 +272,23 @@ body.touch-mode .hud-prompt { bottom: auto; top: 62%; }
   .hud { font-size: 12px; }
   .timer { font-size: 1.15rem; }
   .bar { width: 80px; }
+}
+
+/* ---------- Mobile en jeu : interface compacte ---------- */
+body.touch-mode .hud-team { gap: 2px; }
+body.touch-mode .tm { font-size: 11px; padding: 1px 6px; }
+body.touch-mode .hud-bottom { top: 104px; bottom: auto; flex-direction: column; align-items: flex-start; gap: 4px; }
+body.touch-mode .hud-bottom .equip, body.touch-mode #hud-voicemode { display: none; }
+body.touch-mode .meters { padding: 4px 6px; }
+body.touch-mode .bar { width: 70px; height: 6px; }
+body.touch-mode .hud-feed { top: 40px; width: min(58vw, 520px); }
+body.touch-mode .feed-item { font-size: 12px; padding: 3px 8px; }
+body.touch-mode .feed-item.event { font-size: 13px; }
+body.touch-mode .hud-events { top: 36px; }
+body.touch-mode .hud-chat { bottom: auto; top: 46%; left: calc(10px + var(--safe-l)); width: 30vw; }
+body.touch-mode .hud-center { font-size: 1.4rem; }
+@media (max-height: 420px) {
+  body.touch-mode .touch-buttons { grid-template-columns: repeat(4, 50px); grid-auto-rows: 50px; gap: 6px; }
+  body.touch-mode .tb-act { width: 60px; height: 60px; }
+  body.touch-mode .joy-base { width: 110px; height: 110px; }
 }

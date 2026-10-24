@@ -86,7 +86,8 @@ function createRoom() {
 }
 
 function attach(server) {
-  const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 64 * 1024 });
+  // compression : les instantanés JSON (~4-5 Ko) se compressent très bien (utile en 4G)
+  const wss = new WebSocketServer({ server, path: '/ws', maxPayload: 64 * 1024, perMessageDeflate: { threshold: 1024, zlibDeflateOptions: { level: 3 } } });
   wss.on('connection', (ws, req) => {
     const clientId = 'c' + clientCounter++;
     sockets.set(clientId, ws);
@@ -155,7 +156,7 @@ async function loadCert() {
     throw new Error('Le module « selfsigned » est requis pour --https (npm install).');
   }
   const altNames = [{ type: 2, value: 'localhost' }, ...localIps().map((ip) => ({ type: 7, ip }))];
-  const pems = selfsigned.generate([{ name: 'commonName', value: 'operation-panique.local' }], { days: 365, keySize: 2048, extensions: [{ name: 'subjectAltName', altNames }] });
+  const pems = await selfsigned.generate([{ name: 'commonName', value: 'operation-panique.local' }], { days: 365, keySize: 2048, extensions: [{ name: 'subjectAltName', altNames }] });
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(keyF, pems.private); fs.writeFileSync(certF, pems.cert);
   return { key: pems.private, cert: pems.cert };

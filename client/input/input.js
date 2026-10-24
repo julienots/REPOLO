@@ -65,7 +65,7 @@ export class Input {
     const R = 50;
     zone.addEventListener('pointerdown', (e) => {
       e.preventDefault();
-      joyId = e.pointerId; zone.setPointerCapture(e.pointerId);
+      joyId = e.pointerId; try { zone.setPointerCapture(e.pointerId); } catch { /* pointeur synthétique */ }
       const r = zone.getBoundingClientRect();
       // le joystick apparaît sous le pouce
       base.style.left = `${e.clientX - r.left - 60}px`; base.style.top = `${e.clientY - r.top - 60}px`; base.style.bottom = 'auto';
@@ -88,7 +88,7 @@ export class Input {
       this.touchMove = { x: 0, y: 0, active: false };
     };
     zone.addEventListener('pointerup', endJoy); zone.addEventListener('pointercancel', endJoy);
-    aim.addEventListener('pointerdown', (e) => { aimId = e.pointerId; aim.setPointerCapture(e.pointerId); aimStart = { x: e.clientX, y: e.clientY }; this.touchAim.active = true; });
+    aim.addEventListener('pointerdown', (e) => { aimId = e.pointerId; try { aim.setPointerCapture(e.pointerId); } catch { /* ignore */ } aimStart = { x: e.clientX, y: e.clientY }; this.touchAim.active = true; });
     aim.addEventListener('pointermove', (e) => {
       if (e.pointerId !== aimId) return;
       const dx = e.clientX - aimStart.x, dy = e.clientY - aimStart.y;
@@ -101,7 +101,7 @@ export class Input {
       const a = btn.dataset.touch;
       btn.addEventListener('pointerdown', (e) => {
         e.preventDefault(); e.stopPropagation();
-        btn.setPointerCapture?.(e.pointerId);
+        try { btn.setPointerCapture?.(e.pointerId); } catch { /* ignore */ }
         this.lastDevice = 'touch';
         if (a === 'sprint' || a === 'sneak') {
           this.toggles[a] = !this.toggles[a];

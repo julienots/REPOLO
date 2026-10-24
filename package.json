@@ -13,11 +13,13 @@
     "sim": "node scripts/simulate.mjs",
     "icons": "python3 scripts/make_icons.py"
   },
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "ws": "^8.18.0"
   },
   "optionalDependencies": {
-    "selfsigned": "^2.4.1"
+    "selfsigned": "^5.5.0"
   }
 }

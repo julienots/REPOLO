@@ -53,7 +53,22 @@ export class ClientGame {
       const side = msg.info.side.map((s) => s.name).join(' · ');
       if (side) this.feed(`Bonus : ${side}`, 'info');
       this.center('Récupérez le butin. Ramenez-le au fourgon.', 4);
+      if (app.profile.data.stats.missions < 3) this.scheduleTips();
     }
+  }
+
+  // Astuces pour les premières missions (prise en main progressive)
+  scheduleTips() {
+    const touch = this.app.touchMode;
+    const k = (a) => (touch ? '' : ` (${keyName(this.app.settings.keys[a][0])})`);
+    const tips = [
+      [6, `Astuce : approchez un objet et utilisez l'action${k('interact')} pour le ramasser. Déposez-le dans la zone jaune du fourgon.`],
+      [18, `Astuce : courir${k('sprint')} est bruyant. Le mode discret${k('sneak')} est presque silencieux.`],
+      [32, 'Astuce : les créatures arrivent bientôt. Écoutez : chacune a un son reconnaissable.'],
+      [50, `Astuce : les objets lourds vont plus vite à deux. Les fragiles perdent de la valeur à chaque choc.`],
+      [75, `Astuce : coincé ? Cachez-vous dans un casier${k('interact')}. Ou lancez un objet${k('throw')} sur une créature pour l'étourdir.`],
+    ];
+    this.tipTimers = tips.map(([t, text]) => setTimeout(() => !this.ended && this.feed(text, 'private'), t * 1000));
   }
 
   initHud() {
@@ -440,8 +455,8 @@ export class ClientGame {
     el.className = `feed-item ${kind}`;
     el.textContent = text;
     $('hud-feed').prepend(el);
-    this.feedEls.push({ el, until: performance.now() + (kind === 'event' ? 7000 : 5000) });
-    while (this.feedEls.length > 5) this.feedEls.shift().el.remove();
+    this.feedEls.push({ el, until: performance.now() + (kind === 'event' ? 7000 : kind === 'end' ? 2500 : 4500) });
+    while (this.feedEls.length > 4) this.feedEls.shift().el.remove();
   }
 
   updateFeed() {
@@ -563,6 +578,7 @@ export class ClientGame {
   }
 
   destroy() {
+    for (const t of this.tipTimers || []) clearTimeout(t);
     this.app.audio.stopAmbience();
     this.app.audio.stopSpeech();
     this.app.voice.setPtt(false); this.app.voice.setRadio(false);

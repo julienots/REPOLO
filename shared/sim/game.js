@@ -589,7 +589,7 @@ export class Game {
     }
     // voix (niveau micro mesuré par le client ou parole de bot)
     if (this.time - p.voiceT > 0.6) { p.voiceLevel = 0; p.radioTx = false; }
-    if (p.voiceLevel > 0.04 && !p.isBot) {
+    if (p.voiceLevel > 0.015 && !p.isBot) {
       p.voiceAcc = (p.voiceAcc || 0) + dt;
       if (p.voiceAcc > 0.25) {
         p.voiceAcc = 0;

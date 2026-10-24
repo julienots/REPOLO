@@ -179,3 +179,15 @@ for (const mission of Object.keys(MISSIONS)) {
     }
   });
 }
+
+test('talkie-walkie : parler à la radio fait grésiller le poste des autres (bruit chez eux), coupé par SILENCE RADIO', () => {
+  const g = makeGame({ players: [{ id: 'h1', name: 'A', equipment: 'radio' }, { id: 'h2', name: 'B', equipment: 'radio' }, { id: 'h3', name: 'C', equipment: 'decoy' }] });
+  const a = g.players.get('h1'), b = g.players.get('h2');
+  const far = g.map.rooms.find((r) => r.danger > 0.8);
+  const pt = g.randomPointInRoom(far); b.x = pt.x; b.y = pt.y;
+  const radioAt = () => { let n = 0; run(g, 1, () => { g.setVoice(a, 0.5, true); for (const x of g.noises) if (x.type === 'radio' && x.t === g.time && Math.hypot(x.x - b.x, x.y - b.y) < 0.5) n++; }); return n; };
+  assert.ok(radioAt() > 0, 'grésillement chez B');
+  assert.ok(a.radioBattery < 1, 'batterie consommée');
+  g.time = 300; g.director.forceStart('radio_silence');
+  assert.equal(radioAt(), 0, 'plus de radio pendant SILENCE RADIO');
+});

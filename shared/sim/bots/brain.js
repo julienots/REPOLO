@@ -34,6 +34,7 @@ export class BotBrain {
     this.holding = false;
     this.lastSpotted = {};
     this.input = { mx: 0, my: 0, mode: 'walk' };
+    this.pauseUntil = 0;
   }
 
   get prof() { return this.p.profile; }
@@ -50,7 +51,10 @@ export class BotBrain {
   perceive() {
     const g = this.g, p = this.p;
     const room = g.roomAt(p.x, p.y);
-    if (room) this.explored.add(room.id);
+    if (room && !this.explored.has(room.id)) {
+      this.explored.add(room.id);
+      if (g.time > 3 && g.rng.chance(0.6)) this.pauseUntil = g.time + g.rng.range(0.8, 2.2) * (1.4 - this.prof.bravery * 0.6);
+    }
     for (const m of g.monsters) {
       let seen = playerSees(g, p, m);
       // le Faux Sauveteur et le Dernier Invité trompent les bots peu méfiants
@@ -337,6 +341,12 @@ export class BotBrain {
     const goal = this.goal;
 
     if (p.hidden) { this.input = { mx: 0, my: 0, mode: 'walk' }; return; }
+    // pause « humaine » : il regarde autour de lui (sauf en fuite / départ)
+    if (this.pauseUntil > g.time && goal && !['flee', 'van', 'hide', 'revive'].includes(goal.kind)) {
+      p.angle += Math.sin(g.time * 1.7 + p.x) * dt * 1.5;
+      this.input = { mx: 0, my: 0, mode: 'walk' };
+      return;
+    }
 
     if (goal) {
       const d = dist(p.x, p.y, goal.x, goal.y);
@@ -365,7 +375,7 @@ export class BotBrain {
         const near = [...this.known.values()].some((k) => dist(p.x, p.y, k.x, k.y) < 10);
         if (near && prof.caution > 0.4) mode = 'sneak';
         if (goal.kind === 'revive' && d > 4) mode = 'sprint';
-        if (goal.kind === 'deliver' && prof.caution < 0.4 && d > 6) mode = 'sprint';
+        if (goal.kind === 'deliver' && prof.caution < 0.3 && d > 10 && !p.carry) mode = 'sprint';
       }
     }
     if (this.panicT > g.time) { mx = Math.cos(this.panicDir); my = Math.sin(this.panicDir); mode = 'sprint'; }
@@ -436,6 +446,7 @@ export class BotBrain {
           g.grabItem(p, it);
           if (p.carry) g.chatter.say(p, 'pickup', { item: it.def.name, value: Math.round(it.value) }, { chance: 0.5 });
         }
+        this.pauseUntil = g.time + g.rng.range(0.4, 1.8);
         this.goal = null; this.decideT = 0;
         break;
       }
@@ -446,6 +457,7 @@ export class BotBrain {
           g.dropCarried(p, { reason: 'deliver' });
           if (goal.kind === 'deliver' && it) g.chatter.say(p, 'deliver', {}, { chance: 0.4 });
         }
+        this.pauseUntil = g.time + g.rng.range(1, 3.5);
         this.goal = null; this.decideT = 0;
         break;
       case 'revive':

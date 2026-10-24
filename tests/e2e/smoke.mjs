@@ -29,3 +29,5 @@ const state = await page.evaluate(() => ({ screen: window.app.screen, me: window
 console.log(JSON.stringify(state));
 console.log(errors.length ? errors.join('\n') : 'AUCUNE ERREUR CONSOLE');
 await browser.close();
+const ok = state.screen === 'game' && state.players >= 1 && !errors.some((e) => e.startsWith('[pageerror]') || e.startsWith('[error]'));
+process.exit(ok ? 0 : 1);

@@ -205,6 +205,10 @@ class App {
   }
 
   onResult(result) {
+    // un résultat ne doit être appliqué qu'une fois (reconnexion pendant l'écran de fin, etc.)
+    const key = result ? `${result.seed}:${result.time}:${result.deposited}` : null;
+    if (key && key === this.lastResultKey) { if (this.screen !== 'results') { this.show('results'); this.resultsUI.render(result, this.lastSummary); } return; }
+    this.lastResultKey = key;
     const summary = result && this.myId ? this.profile.applyResult(result, this.myId) : null;
     setTimeout(() => {
       this.endGame();
@@ -212,6 +216,7 @@ class App {
       this.show('results');
       this.resultsUI.render(result, summary);
     }, this.game ? 1800 : 0);
+    this.lastSummary = summary;
   }
 
   backToLobby() {
