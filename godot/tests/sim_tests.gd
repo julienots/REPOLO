@@ -58,12 +58,8 @@ func test_bot_game() -> void:
 	# même pas de temps que scripts/simulate.mjs pour comparer les deux versions
 	var dt = 1.0 / 30.0
 	var next_report = 0.0
-	var next_trace = 1.0
 	while not g.mission.ended and g.time < 300.0:
 		g.step(dt)
-		if g.time >= next_trace and g.time < 100:
-			next_trace += 1.0
-			print("TRACE ", trace(g))
 		if g.time >= next_report:
 			next_report += 30.0
 			print("    ", timeline(g))
@@ -82,6 +78,30 @@ func test_bot_game() -> void:
 	runner.check("partie de bots : du butin est ramené (%d cr)" % int(g.mission.deposited), g.mission.deposited > 0, "quota %d" % int(g.mission.quota))
 	runner.check("partie de bots : les bots font du bruit", noise > 0)
 	print("    (%d s simulées en %d ms réelles, fin : %s)" % [int(g.time), Time.get_ticks_msec() - t0, g.mission.endReason])
+
+
+# Mêmes graines que scripts/simulate (version web : 4 réussites sur 8, 4 équipes à terre).
+# Le comportement exact diverge (calcul flottant), on compare donc l'équilibre global.
+func test_balance_seeds() -> void:
+	var wins = 0
+	var lines = []
+	for seed in [11, 22, 33, 44, 55, 66, 77, 88]:
+		var g = make_game(seed)
+		while not g.mission.ended and g.time < 900.0:
+			g.step(1.0 / 20.0)
+			g.snapshot()
+		var alive = 0
+		var hits = 0
+		for p in g.players.values():
+			if p.state != "dead":
+				alive += 1
+			hits += p.stats.hits
+		if g.mission.endReason == "departure" and g.mission.success:
+			wins += 1
+		lines.append("seed=%d fin=%s t=%d dep=%d/%d survivants=%d coups=%d" % [seed, g.mission.endReason, int(g.time), int(g.mission.deposited), int(g.mission.quota), alive, hits])
+	for l in lines:
+		print("    ", l)
+	runner.check("équilibre : des équipes de bots réussissent la mission (%d/8)" % wins, wins >= 2)
 
 
 func test_every_monster() -> void:

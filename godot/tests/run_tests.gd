@@ -15,6 +15,7 @@ func _ready() -> void:
 	test_maps_navigable()
 	test_pathfinding()
 	test_grid_sight_sound()
+	test_scripts_compile()
 	for t in extra_tests():
 		t.call()
 	print("=== %d réussis, %d échoués ===" % [passed, failed])
@@ -115,3 +116,28 @@ func test_grid_sight_sound() -> void:
 	g.set_t(5, 1, Grid.WALL)
 	check("la vue est bloquée par un mur", open_los and not g.has_los(0.5, 1.5, 9.5, 1.5))
 	check("le son est étouffé par un mur", g.sound_obstruction(0.5, 1.5, 9.5, 1.5) > 2.0)
+
+
+# Chaque script du jeu doit se compiler (y compris ceux que les tests n'utilisent pas encore).
+func test_scripts_compile() -> void:
+	var bad = []
+	var n = 0
+	for path in list_files("res://scripts", ".gd"):
+		n += 1
+		var sc = load(path)
+		if sc == null or not sc.can_instantiate():
+			bad.append(path)
+	check("%d scripts compilés sans erreur" % n, bad.is_empty(), str(bad))
+
+
+func list_files(dir: String, ext: String) -> Array:
+	var out = []
+	var d = DirAccess.open(dir)
+	if d == null:
+		return out
+	for f in d.get_files():
+		if f.ends_with(ext):
+			out.append(dir + "/" + f)
+	for sub in d.get_directories():
+		out.append_array(list_files(dir + "/" + sub, ext))
+	return out
