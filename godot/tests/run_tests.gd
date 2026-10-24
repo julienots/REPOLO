@@ -4,6 +4,7 @@ extends Node
 
 var passed = 0
 var failed = 0
+var _keep = []  # les Callable ne retiennent pas les RefCounted : on garde les instances
 
 
 func _ready() -> void:
@@ -23,9 +24,12 @@ func _ready() -> void:
 # Point d'extension : tests de la simulation (ajoutés par d'autres fichiers)
 func extra_tests() -> Array:
 	var out = []
+	if not ResourceLoader.exists("res://tests/sim_tests.gd"):
+		return out
 	var sim_tests = load("res://tests/sim_tests.gd")
 	if sim_tests:
 		var inst = sim_tests.new(self)
+		_keep.append(inst)
 		for m in inst.get_method_list():
 			if String(m.name).begins_with("test_"):
 				out.append(Callable(inst, m.name))
