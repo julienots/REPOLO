@@ -38,6 +38,17 @@ func timeline(g: GameSim) -> String:
 	return "t=%ds dep=%d/%d items=%d mon=%s tension=%.2f %s | %s" % [int(g.time), int(g.mission.deposited), int(g.mission.quota), g.items.size(), ",".join(mons), g.director.tension, g.director.phase, " ".join(ps)]
 
 
+# Empreinte compacte de l'état (comparée ligne à ligne avec la version web)
+func trace(g: GameSim) -> String:
+	var parts = ["%d" % int(round(g.time))]
+	for p in g.players.values():
+		parts.append("%.2f,%.2f,%s" % [p.x, p.y, p.state.substr(0, 1)])
+	for m in g.monsters:
+		parts.append("%s:%.2f,%.2f,%s" % [m.type.substr(0, 3), m.x, m.y, m.state])
+	parts.append("ev%d" % g.director.history.size())
+	return " ".join(parts)
+
+
 func test_bot_game() -> void:
 	var t0 = Time.get_ticks_msec()
 	var g = make_game(1234)
@@ -47,8 +58,12 @@ func test_bot_game() -> void:
 	# même pas de temps que scripts/simulate.mjs pour comparer les deux versions
 	var dt = 1.0 / 30.0
 	var next_report = 0.0
+	var next_trace = 1.0
 	while not g.mission.ended and g.time < 300.0:
 		g.step(dt)
+		if g.time >= next_trace and g.time < 100:
+			next_trace += 1.0
+			print("TRACE ", trace(g))
 		if g.time >= next_report:
 			next_report += 30.0
 			print("    ", timeline(g))
