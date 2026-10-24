@@ -17,6 +17,7 @@ var t = 0.0
 var start_pos = Vector2.ZERO
 var ok = {}
 var server = "127.0.0.1:8080"
+var max_seen = 0.0
 
 
 func _ready() -> void:
@@ -86,12 +87,13 @@ func _process(delta: float) -> void:
 			var d = dirs[int(t) % 4]
 			host_state.step_movement(me, d.x, d.y, "walk", {}, delta)
 			host_state.step(delta)
+			var seen_now = guest_state.players.get(host_id)
+			if seen_now != null:
+				max_seen = maxf(max_seen, Vector2(seen_now.x, seen_now.y).distance_to(start_pos))
 			if t > 10.0:
 				phase = "check"
 		if phase == "check":
-			var seen = guest_state.players.get(host_id)
-			var moved = seen != null and Vector2(seen.x, seen.y).distance_to(start_pos) > 0.8
-			ok["l'invité voit l'hôte se déplacer (instantanés du serveur)"] = moved
+			ok["l'invité voit l'hôte se déplacer (%.1f cases)" % max_seen] = max_seen > 0.8
 			ok["instantanés reçus (%d / %d)" % [snaps_host, snaps_guest]] = snaps_host > 60 and snaps_guest > 60
 			var bots = 0
 			for p in host_state.players.values():
