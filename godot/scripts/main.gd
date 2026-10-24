@@ -10,6 +10,10 @@ var t = 0.0
 var bd_cam: Camera3D
 var bd_monster: MonsterView
 var bd_path = []
+var net: NetClient
+var my_id = ""
+var last_lobby = {}
+var in_game_online = false
 
 
 func _ready() -> void:
@@ -25,6 +29,9 @@ func _show_menu() -> void:
 	menu = Menu3D.new()
 	menu_layer.add_child(menu)
 	menu.start_requested.connect(_start_game)
+	menu.online_requested.connect(_go_online)
+	menu.net_send.connect(_net_send)
+	menu.leave_requested.connect(_leave_online)
 
 
 # Décor du menu : un couloir de l'hôtel, une lampe qui grésille, et quelque chose au fond.
@@ -109,11 +116,85 @@ func _start_game(cfg: Dictionary) -> void:
 	game.setup(cfg)
 	add_child(game)
 	game.finished.connect(_on_finished)
+	game.quit_requested.connect(_leave_online)
 
 
 func _on_finished(result: Dictionary) -> void:
-	var gain = Profile3D.apply_result(result)
+	var gain = Profile3D.apply_result(result, my_id if in_game_online else "me")
 	game.queue_free()
 	game = null
 	_show_menu()
-	menu.show_results(result, gain)
+	menu.show_results(result, gain, in_game_online)
+	in_game_online = false
+
+
+# ------------------------------------------------------------------ EN LIGNE
+func _go_online(action: String, server: String, code: String) -> void:
+	if net != null:
+		net.close()
+		net.queue_free()
+	net = NetClient.new()
+	add_child(net)
+	net.message.connect(_on_net)
+	net.status_changed.connect(_on_net_status)
+	net.connect_to(server)
+	var hello = {"name": Profile3D.data.name, "cosmetics": Profile3D.data.cosmetics, "equipment": Profile3D.data.equipment,
+		"platform": "mobile" if OS.has_feature("mobile") else "pc", "level": Profile3D.level_info().level}
+	if action == "create":
+		net.send({"t": "create", "hello": hello})
+	else:
+		net.send({"t": "join", "code": code, "hello": hello})
+
+
+func _on_net_status(st: String) -> void:
+	if menu != null and is_instance_valid(menu):
+		match st:
+			"error":
+				menu.set_status("Adresse invalide.")
+			"reconnecting":
+				menu.set_status("Connexion perdue, nouvelle tentative…")
+			"lost":
+				menu.show_online("Impossible de joindre le serveur. Vérifiez l'adresse et que le serveur est lancé.")
+
+
+func _on_net(msg: Dictionary) -> void:
+	match msg.get("t"):
+		"welcome":
+			my_id = String(msg.you)
+		"lobby":
+			last_lobby = msg
+			if game == null and menu != null and is_instance_valid(menu) and String(msg.get("state", "lobby")) == "lobby":
+				menu.show_lobby(msg, my_id)
+		"error":
+			if menu != null and is_instance_valid(menu):
+				menu.set_status(String(msg.get("msg", "Erreur")))
+		"kicked":
+			_leave_online()
+		"start":
+			if game != null:
+				return
+			var cs = ClientState.new(net, msg.info, String(msg.you))
+			my_id = String(msg.you)
+			in_game_online = true
+			var s = Profile3D.data.settings
+			_start_game({"client_state": cs, "sensitivity": float(s.sensitivity), "volume": float(s.volume), "mic": bool(s.mic), "tts": bool(s.tts),
+				"shadows": bool(s.shadows)})
+
+
+func _net_send(m: Dictionary) -> void:
+	if net != null:
+		net.send(m)
+
+
+func _leave_online() -> void:
+	if net != null:
+		net.close()
+		net.queue_free()
+		net = null
+	if game != null:
+		game.queue_free()
+		game = null
+		_show_menu()
+	in_game_online = false
+	if menu != null and is_instance_valid(menu):
+		menu.show_main()

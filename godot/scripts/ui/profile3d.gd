@@ -86,10 +86,10 @@ static func buy(slot: String, item: Dictionary) -> bool:
 
 
 # Applique le résultat d'une mission : crédits, expérience, statistiques. Retourne le gain.
-static func apply_result(result: Dictionary) -> Dictionary:
+static func apply_result(result: Dictionary, my_id := "me") -> Dictionary:
 	var mine = {}
 	for p in result.get("players", []):
-		if p.id == "me":
+		if p.id == my_id:
 			mine = p
 	var coins = int(mine.get("coins", 0))
 	var xp = int(mine.get("xp", 0))

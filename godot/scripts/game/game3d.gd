@@ -12,7 +12,12 @@ const T = WorldBuilder.T
 const EYE = 1.62
 
 var cfg: Dictionary = {}
-var g: GameSim
+var g                      # GameSim (solo) ou ClientState (en ligne)
+var my_id = "me"
+var online = false
+var me_prev = Vector2.ZERO
+var snap_time = 0.0
+var snap_dt = TICK
 var me: SimEntities.SimPlayer
 var world: WorldBuilder
 var cam: Camera3D
@@ -79,6 +84,16 @@ func _ready() -> void:
 
 # ------------------------------------------------------------------ CONSTRUCTION
 func _build_sim() -> void:
+	if cfg.has("client_state"):
+		online = true
+		g = cfg.client_state
+		my_id = g.you
+		me = g.me()
+		for r in g.info.roster:
+			roster[String(r.id)] = {"name": r.name, "cosmetics": r.get("cosmetics", {}), "bot": bool(r.get("bot", false)), "botProfile": r.get("botProfile", "")}
+		last_hp = me.hp
+		me_prev = Vector2(me.x, me.y)
+		return
 	var team = []
 	team.append({"id": "me", "name": cfg.get("name", "Employé"), "isBot": false, "cosmetics": cfg.get("cosmetics", Data.db.DEFAULT_COSMETICS),
 		"equipment": cfg.get("equipment", "radio")})
@@ -166,8 +181,8 @@ func _build_scene() -> void:
 	# vue de soi : corps visible en baissant les yeux
 	var mine = PlayerView.new()
 	add_child(mine)
-	mine.setup("me", me.cosmetics, true, false)
-	views_p["me"] = mine
+	mine.setup(my_id, me.cosmetics, true, false)
+	views_p[my_id] = mine
 	if autopilot:
 		mine.visible = false
 
@@ -237,6 +252,9 @@ func _set_paused(v: bool) -> void:
 
 
 func _abandon() -> void:
+	if online:
+		quit_requested.emit()
+		return
 	paused = false
 	pause_panel.visible = false
 	if not g.mission.ended:
@@ -402,9 +420,9 @@ func _process(delta: float) -> void:
 			_tick()
 			acc -= TICK
 			steps += 1
-	_render(clampf(acc / TICK, 0.0, 1.0), delta)
+	_render(clampf((time_s - snap_time) / snap_dt, 0.0, 1.0), clampf(acc / TICK, 0.0, 1.0), delta)
 	hud.tick(delta)
-	if ended and end_t >= 0 and time_s > end_t:
+	if ended and end_t >= 0 and time_s > end_t and not g.result.is_empty():
 		end_t = -1.0
 		finished.emit(g.result)
 
@@ -413,6 +431,7 @@ func _tick() -> void:
 	if g.mission.ended:
 		return
 	_read_mic()
+	me_prev = Vector2(me.x, me.y)
 	if not autopilot:
 		var inp = _move_input()
 		var can_move = me.state in ["alive", "downed", "dead"] and me.hidden == 0
@@ -431,9 +450,14 @@ func _tick() -> void:
 					g.bump_door(me, tx, ty)
 		if mic_level > 0.02:
 			g.set_voice(me, mic_level, false)
-	prev = cur.duplicate()
 	g.step(TICK)
-	snap = g.snapshot()
+	var fresh = g.snapshot()
+	if fresh.is_empty():
+		return
+	snap = fresh
+	prev = cur.duplicate()
+	snap_dt = clampf(time_s - snap_time, TICK, 0.25)
+	snap_time = time_s
 	cur = {}
 	for p in snap.players:
 		cur[p.id] = Vector2(p.x, p.y)
@@ -494,18 +518,16 @@ func _sync_views() -> void:
 			views_i.erase(id)
 
 
-func _render(alpha: float, dt: float) -> void:
+func _render(alpha: float, me_alpha: float, dt: float) -> void:
 	if snap.is_empty():
 		return
 	var t = time_s
 	var mps = {}
 	for p in snap.players:
 		mps[p.id] = p
-	var ms = mps.get("me", {})
+	var ms = mps.get(my_id, {})
 	# caméra
-	var mp = Vector2(me.x, me.y) if not autopilot else _interp("me", alpha)
-	if not autopilot:
-		mp = prev.get("me", mp).lerp(Vector2(me.x, me.y), alpha) if prev.has("me") else mp
+	var mp = me_prev.lerp(Vector2(me.x, me.y), me_alpha) if not autopilot else _interp(my_id, alpha)
 	var eye = EYE
 	var st = me.state
 	if st == "downed":
@@ -550,13 +572,13 @@ func _render(alpha: float, dt: float) -> void:
 		if v == null:
 			continue
 		var pos = _interp(p.id, alpha)
-		if p.id == "me" and not autopilot:
+		if p.id == my_id and not autopilot:
 			pos = mp
 		v.position = WorldBuilder.to3(pos.x, pos.y)
-		var a = float(p.a) if p.id != "me" else me.angle
+		var a = float(p.a) if p.id != my_id else me.angle
 		v.rotation.y = lerp_angle(v.rotation.y, -a, minf(1.0, dt * 14.0))
 		v.animate(p, dt, t)
-		if p.id == "me" and not autopilot:
+		if p.id == my_id and not autopilot:
 			v.visible = st == "alive" and me.hidden == 0
 			v.rig.head.visible = false
 		if p.st == "dead" and st != "dead":
@@ -587,7 +609,7 @@ func _render(alpha: float, dt: float) -> void:
 		if carrier != null and cur.has(carrier):
 			var cp = _interp(carrier, alpha)
 			var ca = float(mps[carrier].a) if mps.has(carrier) else 0.0
-			if carrier == "me" and not autopilot:
+			if carrier == my_id and not autopilot:
 				# objet porté par soi : devant la caméra
 				cp = mp
 				ca = me.angle
@@ -681,7 +703,7 @@ func _monster_type(id: String) -> String:
 func _tick_noises(list: Array) -> void:
 	for n in list:
 		var nm = String(n.t)
-		var own = n.s == "me"
+		var own = n.s == my_id
 		var pos = WorldBuilder.to3(float(n.x), float(n.y), 0.3)
 		var loud = float(n.l)
 		var vol = lerpf(-22.0, 2.0, clampf(loud / 12.0, 0.0, 1.0)) - (7.0 if own else 0.0)
@@ -794,7 +816,7 @@ func _tick_messages(s: Dictionary) -> void:
 				if m.kind == "event":
 					sfx.play_ui("stinger", -10.0)
 			"private":
-				if m.to == "me":
+				if m.to == my_id:
 					hud.feed(m.text, "private")
 			"sfx":
 				sfx.play_at(m.name, WorldBuilder.to3(float(m.x), float(m.y), 1.0), 0.0)
@@ -821,6 +843,8 @@ func _shake_near(x: float, y: float, amp: float) -> void:
 
 
 func _exit_tree() -> void:
+	if online and g.net.message.is_connected(g._on_message):
+		g.net.message.disconnect(g._on_message)
 	if not autopilot:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	DisplayServer.tts_stop()

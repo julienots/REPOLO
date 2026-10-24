@@ -4,12 +4,17 @@ class_name Menu3D
 extends Control
 
 signal start_requested(cfg: Dictionary)
+signal online_requested(action: String, server: String, code: String)
+signal net_send(msg: Dictionary)
+signal leave_requested
 
 var mobile = false
 var panel: PanelContainer
 var content: VBoxContainer
 var profile_label: Label
 var sel = {"mission": "morvan", "difficulty": "employe", "bots": 3}
+var status_label: Label
+var lobby_chat_edit: LineEdit
 
 
 func _ready() -> void:
@@ -60,13 +65,14 @@ func _clear() -> void:
 func show_main() -> void:
 	_clear()
 	content.add_child(UiTheme.button("Mission solo (avec bots)", show_solo))
+	content.add_child(UiTheme.button("Multijoueur en ligne (code d'invitation)", show_online))
 	content.add_child(UiTheme.button("Personnaliser mon employé", show_custom))
 	content.add_child(UiTheme.button("Réglages", show_settings))
 	content.add_child(UiTheme.button("Bestiaire", show_bestiary))
 	if not mobile:
 		content.add_child(UiTheme.button("Quitter", func(): get_tree().quit()))
-	content.add_child(UiTheme.label("La version 3D se joue en solo avec des bots coéquipiers. Le multijoueur en ligne avec chat vocal "
-		+ "se joue sur la version 2D (navigateur / APK) reliée au serveur du jeu.", 14, Color(0.7, 0.7, 0.7)))
+	content.add_child(UiTheme.label("En ligne, la 3D rejoint les mêmes salons que la version 2D (navigateur / APK) : même serveur, mêmes règles. "
+		+ "Le chat vocal n'existe que dans la version 2D ; en 3D votre micro sert uniquement au bruit (les créatures vous entendent).", 14, Color(0.7, 0.7, 0.7)))
 
 
 func _option(items: Array, current: String, cb: Callable) -> OptionButton:
@@ -265,7 +271,7 @@ func show_bestiary() -> void:
 	content.add_child(UiTheme.button("Retour", show_main))
 
 
-func show_results(r: Dictionary, gain: Dictionary) -> void:
+func show_results(r: Dictionary, gain: Dictionary, online := false) -> void:
 	_clear()
 	content.add_child(UiTheme.title("MISSION RÉUSSIE" if r.get("success", false) else "MISSION ÉCHOUÉE", 32))
 	var reasons = {"departure": "Départ du fourgon", "time": "Temps écoulé", "wipe": "Toute l'équipe est à terre", "abandon": "Mission abandonnée"}
@@ -288,5 +294,115 @@ func show_results(r: Dictionary, gain: Dictionary) -> void:
 		content.add_child(UiTheme.label("Moments forts", 18, UiTheme.ACCENT))
 		for h in r.highlights.slice(maxi(0, r.highlights.size() - 6)):
 			content.add_child(UiTheme.label("[%d:%02d] %s" % [int(h.t) / 60, int(h.t) % 60, h.text], 14))
-	content.add_child(UiTheme.button("Rejouer", show_solo))
-	content.add_child(UiTheme.button("Menu principal", show_main))
+	if online:
+		content.add_child(UiTheme.button("Retour au salon", func(): net_send.emit({"t": "backToLobby"})))
+		content.add_child(UiTheme.button("Quitter le salon", func(): leave_requested.emit()))
+	else:
+		content.add_child(UiTheme.button("Rejouer", show_solo))
+		content.add_child(UiTheme.button("Menu principal", show_main))
+
+
+# ------------------------------------------------------------------ EN LIGNE
+func show_online(err := "") -> void:
+	_clear()
+	content.add_child(UiTheme.title("Multijoueur en ligne", 30))
+	content.add_child(UiTheme.label("Adresse du serveur du jeu (celui que l'hôte a lancé : « npm start » sur un PC du même Wi-Fi, ou serveur en ligne). "
+		+ "Exemple : 192.168.1.20:8080", 14, Color(0.75, 0.75, 0.75)))
+	var srv = LineEdit.new()
+	srv.text = String(Profile3D.data.get("server", ""))
+	srv.placeholder_text = "192.168.1.20:8080"
+	srv.custom_minimum_size = Vector2(480, 46)
+	content.add_child(srv)
+	content.add_child(UiTheme.button("Créer un salon", func(): _go_online("create", srv.text, "")))
+	var code = LineEdit.new()
+	code.placeholder_text = "CODE"
+	code.max_length = 8
+	code.custom_minimum_size = Vector2(480, 46)
+	content.add_child(code)
+	content.add_child(UiTheme.button("Rejoindre avec ce code", func(): _go_online("join", srv.text, code.text)))
+	status_label = UiTheme.label(err, 15, Color(1.0, 0.5, 0.4))
+	content.add_child(status_label)
+	content.add_child(UiTheme.button("Retour", show_main))
+
+
+func _go_online(action: String, server: String, code: String) -> void:
+	if server.strip_edges() == "":
+		status_label.text = "Indiquez l'adresse du serveur."
+		return
+	if action == "join" and code.strip_edges() == "":
+		status_label.text = "Indiquez le code du salon."
+		return
+	Profile3D.data.server = server.strip_edges()
+	Profile3D.save()
+	status_label.text = "Connexion…"
+	status_label.add_theme_color_override("font_color", Color(0.8, 0.85, 0.9))
+	online_requested.emit(action, server.strip_edges(), code.strip_edges().to_upper())
+
+
+func set_status(text: String) -> void:
+	if status_label != null and is_instance_valid(status_label):
+		status_label.text = text
+
+
+func show_lobby(l: Dictionary, my_id: String) -> void:
+	var keep_chat = lobby_chat_edit.text if lobby_chat_edit != null and is_instance_valid(lobby_chat_edit) else ""
+	_clear()
+	var me_host = false
+	for m in l.members:
+		if m.id == my_id and m.isHost:
+			me_host = true
+	content.add_child(UiTheme.title("Salon %s" % l.code, 34))
+	content.add_child(UiTheme.label("Donnez ce code à vos amis (version 2D ou 3D).", 14, Color(0.75, 0.75, 0.75)))
+	for m in l.members:
+		var tags = []
+		if m.isHost:
+			tags.append("hôte")
+		tags.append("prêt" if m.ready or m.isHost else "pas prêt")
+		if not m.connected:
+			tags.append("déconnecté")
+		tags.append(m.get("platform", "pc"))
+		content.add_child(UiTheme.label("%s%s — %s" % ["> " if m.id == my_id else "", m.name, ", ".join(tags)], 16))
+	var st = l.settings
+	var mi = Data.db.MISSIONS.get(st.mission, {})
+	var di = Data.db.DIFFICULTIES.get(st.difficulty, {})
+	content.add_child(UiTheme.label("Mission : %s — difficulté : %s — équipe de %d %s" % [mi.get("name", st.mission), di.get("name", st.difficulty), int(st.teamSize),
+		"(complétée par des bots)" if st.fillBots else ""], 15, UiTheme.ACCENT))
+	if me_host:
+		var ms = []
+		for id in Data.db.MISSIONS:
+			ms.append([id, Data.db.MISSIONS[id].name])
+		content.add_child(_option(ms, st.mission, func(v): net_send.emit({"t": "settings", "mission": v})))
+		var ds = []
+		for id in Data.db.DIFFICULTIES:
+			ds.append([id, Data.db.DIFFICULTIES[id].name])
+		content.add_child(_option(ds, st.difficulty, func(v): net_send.emit({"t": "settings", "difficulty": v})))
+		content.add_child(_option([["1", "Équipe de 1"], ["2", "Équipe de 2"], ["3", "Équipe de 3"], ["4", "Équipe de 4"]], str(int(st.teamSize)),
+			func(v): net_send.emit({"t": "settings", "teamSize": int(v)})))
+		var fb = CheckButton.new()
+		fb.text = "Compléter l'équipe avec des bots"
+		fb.button_pressed = bool(st.fillBots)
+		fb.toggled.connect(func(v): net_send.emit({"t": "settings", "fillBots": v}))
+		content.add_child(fb)
+		content.add_child(UiTheme.button("LANCER LA MISSION", func(): net_send.emit({"t": "start", "force": true})))
+	else:
+		var ready = false
+		for m in l.members:
+			if m.id == my_id:
+				ready = m.ready
+		content.add_child(UiTheme.button("Je ne suis plus prêt" if ready else "Je suis prêt", func(): net_send.emit({"t": "ready", "v": not ready})))
+	content.add_child(UiTheme.label("Discussion", 16))
+	for c in l.get("chat", []).slice(maxi(0, l.chat.size() - 8)):
+		content.add_child(UiTheme.label(("%s : %s" % [c.name, c.text]) if c.name != "" else c.text, 14, Color(0.85, 0.85, 0.8)))
+	lobby_chat_edit = LineEdit.new()
+	lobby_chat_edit.placeholder_text = "Message…"
+	lobby_chat_edit.text = keep_chat
+	lobby_chat_edit.custom_minimum_size = Vector2(480, 44)
+	lobby_chat_edit.text_submitted.connect(_send_chat)
+	content.add_child(lobby_chat_edit)
+	content.add_child(UiTheme.button("Quitter le salon", func(): leave_requested.emit()))
+
+
+func _send_chat(text: String) -> void:
+	if text.strip_edges() != "":
+		net_send.emit({"t": "chat", "text": text.strip_edges()})
+	lobby_chat_edit.text = ""

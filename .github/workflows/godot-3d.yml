@@ -65,6 +65,17 @@ jobs:
           if grep -E "SCRIPT ERROR|Parse Error|Compile Error|Failed to load script" tests.log; then echo "::error::Erreurs à l'exécution des tests"; exit 1; fi
           grep -q "réussis, 0 échoués" tests.log
 
+      - name: Test réseau (serveur Node du jeu + 2 clients Godot)
+        run: |
+          npm install --omit=dev --omit=optional --no-audit --no-fund
+          PORT=8080 node server/index.js > server.log 2>&1 &
+          SERVER_PID=$!
+          sleep 2
+          godot --headless --path godot res://tests/net_test.tscn 2>&1 | tee net.log || true
+          kill $SERVER_PID || true
+          if grep -E "SCRIPT ERROR|Parse Error" net.log; then echo "::error::Erreurs de script (réseau)"; exit 1; fi
+          grep -q "0 échoués" net.log
+
       - name: Captures d'écran (rendu logiciel)
         if: always()
         continue-on-error: true

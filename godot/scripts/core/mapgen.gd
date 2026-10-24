@@ -516,3 +516,36 @@ static func build_room_grid(m: Dictionary) -> PackedInt32Array:
 				for x in range(cx * cs + 1, x1 + 1):
 					g[y * m.w + x] = ri
 	return g
+
+
+# Carte reçue du serveur (serializeMap de shared/map/generator.js) → même structure que generate().
+static func deserialize(s: Dictionary) -> Dictionary:
+	var w = int(s.w)
+	var h = int(s.h)
+	var grid = Grid.new(w, h)
+	var tiles = String(s.tiles)
+	for i in mini(tiles.length(), w * h):
+		grid.tiles[i] = tiles.unicode_at(i) - 48
+	var doors = []
+	for d in s.doors:
+		doors.append(int(d))
+	var dopen = String(s.get("doorOpen", ""))
+	for k in doors.size():
+		if k < dopen.length():
+			grid.door_open[doors[k]] = dopen.unicode_at(k) - 48
+	var rooms = []
+	for r in s.rooms:
+		rooms.append({"id": int(r.id), "x": int(r.x), "y": int(r.y), "w": int(r.w), "h": int(r.h), "danger": float(r.danger), "secret": bool(r.secret),
+			"start": bool(r.start), "isCorridor": bool(r.get("corridor", false)), "cells": r.get("cells", [])})
+	var lockers = []
+	for l in s.lockers:
+		lockers.append({"id": int(l.id), "x": float(l.x), "y": float(l.y), "face": float(l.face), "room": l.get("room", -1)})
+	var lamps = []
+	for l in s.lamps:
+		var lc = l.duplicate()
+		lc.on = bool(l.get("on", true))
+		lamps.append(lc)
+	return {
+		"theme": String(s.theme), "seed": int(s.seed), "w": w, "h": h, "grid": grid, "rooms": rooms, "van": s.van, "lever": s.lever, "spawn": s.spawn,
+		"lockers": lockers, "elevators": s.elevators, "lamps": lamps, "items": [], "doors": doors, "cellSize": int(s.get("cellSize", 9)),
+	}
