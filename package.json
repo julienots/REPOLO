@@ -1,0 +1,23 @@
+{
+  "name": "operation-panique",
+  "version": "0.1.0",
+  "description": "Jeu d'horreur coopératif multijoueur (PC + mobile) — navigateur, solo avec bots ou en ligne",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server/index.js",
+    "start:https": "node server/index.js --https",
+    "dev": "node --watch server/index.js",
+    "test": "node --test --test-concurrency=1 \"tests/unit/*.test.js\" \"tests/integration/*.test.js\"",
+    "test:e2e": "node tests/e2e/run-e2e.mjs",
+    "sim": "node scripts/simulate.mjs",
+    "icons": "python3 scripts/make_icons.py"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "optionalDependencies": {
+    "selfsigned": "^2.4.1"
+  }
+}

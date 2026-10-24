@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0d0f12">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Jeu d'horreur coopératif multijoueur : récupérez le butin, survivez aux créatures, ne criez pas.">
+  <title>Opération Panique</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- ======================= MENU PRINCIPAL ======================= -->
+    <section id="screen-menu" class="screen active">
+      <div class="menu-bg"><canvas id="menu-canvas"></canvas></div>
+      <div class="menu-wrap">
+        <header class="title-block">
+          <div class="tape"><span>DANGER — RÉCUPÉRATION EN COURS</span></div>
+          <h1 id="game-title" class="game-title">OPÉRATION PANIQUE</h1>
+          <p id="game-tagline" class="tagline"></p>
+        </header>
+        <div class="menu-grid">
+          <nav class="menu-buttons">
+            <button class="btn big primary" data-action="solo">▶ Jouer en solo <small>avec des bots</small></button>
+            <button class="btn big" data-action="create">🌐 Créer une partie en ligne</button>
+            <div class="join-row">
+              <input id="join-code" maxlength="5" placeholder="CODE" autocomplete="off" spellcheck="false" aria-label="Code d'invitation">
+              <button class="btn" data-action="join">Rejoindre</button>
+            </div>
+            <div class="menu-small">
+              <button class="btn" data-action="locker">🎽 Casier</button>
+              <button class="btn" data-action="progress">🏆 Défis</button>
+              <button class="btn" data-action="bestiary">👁 Bestiaire</button>
+              <button class="btn" data-action="settings">⚙ Réglages</button>
+              <button class="btn" data-action="help">❔ Comment jouer</button>
+            </div>
+            <p id="server-status" class="server-status"></p>
+          </nav>
+          <aside class="profile-card">
+            <canvas id="menu-avatar" width="160" height="160"></canvas>
+            <label class="field"><span>Votre nom</span><input id="profile-name" maxlength="16" autocomplete="nickname"></label>
+            <div class="profile-stats">
+              <div><b id="profile-level">1</b><span>Niveau</span></div>
+              <div><b id="profile-coins">0</b><span>Crédits</span></div>
+              <div><b id="profile-wins">0</b><span>Missions réussies</span></div>
+            </div>
+            <div class="xpbar"><div id="profile-xp"></div></div>
+            <p id="profile-title" class="profile-title"></p>
+            <button class="btn small ghost" data-action="install" id="btn-install" hidden>📲 Installer l'application</button>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= SALON ======================= -->
+    <section id="screen-lobby" class="screen">
+      <div class="lobby-wrap">
+        <header class="lobby-head">
+          <button class="btn ghost" data-action="leave-lobby">← Quitter</button>
+          <div class="code-box">
+            <span class="code-label" id="lobby-mode">Code d'invitation</span>
+            <b id="lobby-code">-----</b>
+            <button class="btn small" data-action="copy-code" id="btn-copy-code">Copier le lien</button>
+          </div>
+          <button class="btn" data-action="toggle-voice" id="btn-voice">🎙 Activer le micro</button>
+        </header>
+        <div class="lobby-grid">
+          <div class="panel members-panel">
+            <h3>Équipe <span id="lobby-count"></span></h3>
+            <ul id="lobby-members" class="members"></ul>
+            <div id="bot-controls" class="bot-controls"></div>
+          </div>
+          <div class="panel settings-panel">
+            <h3>Mission</h3>
+            <label class="field"><span>Lieu</span><select id="set-mission"></select></label>
+            <p id="mission-brief" class="brief"></p>
+            <label class="field"><span>Difficulté</span><select id="set-difficulty"></select></label>
+            <p id="difficulty-desc" class="brief small"></p>
+            <label class="field"><span>Variante</span><select id="set-variant"></select></label>
+            <div class="row2">
+              <label class="field"><span>Taille d'équipe</span><select id="set-teamsize"></select></label>
+              <label class="field"><span>Places humaines max</span><select id="set-maxplayers"></select></label>
+            </div>
+            <label class="check"><input type="checkbox" id="set-fillbots"> Compléter l'équipe avec des bots</label>
+            <label class="check" id="lock-row"><input type="checkbox" id="set-locked"> Verrouiller le salon (plus personne ne peut entrer)</label>
+            <p id="settings-note" class="note"></p>
+          </div>
+          <div class="panel loadout-panel">
+            <h3>Votre équipement</h3>
+            <div id="loadout" class="loadout"></div>
+            <div class="lobby-actions">
+              <button class="btn big" id="btn-ready" data-action="ready">✔ Je suis prêt</button>
+              <button class="btn big primary" id="btn-start" data-action="start">🚐 Lancer la mission</button>
+            </div>
+            <div class="lobby-chat">
+              <ul id="lobby-chat-log"></ul>
+              <form id="lobby-chat-form"><input id="lobby-chat-input" maxlength="140" placeholder="Message…" autocomplete="off"><button class="btn small">➤</button></form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= JEU ======================= -->
+    <section id="screen-game" class="screen">
+      <canvas id="game-canvas"></canvas>
+      <div id="hud" class="hud">
+        <div class="hud-top">
+          <div class="quota"><div class="quota-bar"><div id="hud-quota-fill"></div><div id="hud-quota-mark"></div></div><span id="hud-quota-text"></span></div>
+          <div id="hud-timer" class="timer">9:00</div>
+          <button class="hud-btn" id="btn-pause" aria-label="Menu">☰</button>
+        </div>
+        <div id="hud-events" class="hud-events"></div>
+        <div id="hud-feed" class="hud-feed"></div>
+        <div id="hud-team" class="hud-team"></div>
+        <div id="hud-center" class="hud-center"></div>
+        <div id="hud-prompt" class="hud-prompt"></div>
+        <div class="hud-bottom">
+          <div class="meters">
+            <div class="meter"><span>❤</span><div id="hud-hp" class="hearts"></div></div>
+            <div class="meter"><span>⚡</span><div class="bar"><div id="hud-stamina"></div></div></div>
+            <div class="meter"><span>🔦</span><div class="bar"><div id="hud-battery"></div></div></div>
+            <div class="meter" id="hud-radio-row"><span>📻</span><div class="bar"><div id="hud-radio"></div></div></div>
+          </div>
+          <div id="hud-carry" class="carry"></div>
+          <div id="hud-equip" class="equip"></div>
+          <div id="hud-voice" class="voice-ind"><span id="hud-mic">🎙</span><div class="bar mic"><div id="hud-miclevel"></div></div><span id="hud-voicemode"></span></div>
+        </div>
+        <div id="hud-chat" class="hud-chat"><ul id="game-chat-log"></ul><form id="game-chat-form" hidden><input id="game-chat-input" maxlength="140" placeholder="Message (Entrée)…" autocomplete="off"></form></div>
+        <div id="vignette" class="vignette"></div>
+      </div>
+      <div id="touch" class="touch" hidden>
+        <div id="joy-zone" class="joy-zone"><div id="joy-base" class="joy-base"><div id="joy-knob" class="joy-knob"></div></div></div>
+        <div id="aim-zone" class="aim-zone"></div>
+        <div class="touch-buttons">
+          <button class="tb tb-act" data-touch="interact">✋<small>Action</small></button>
+          <button class="tb tb-throw" data-touch="throw">🫴<small>Lancer</small></button>
+          <button class="tb tb-sprint" data-touch="sprint">🏃<small>Courir</small></button>
+          <button class="tb tb-sneak" data-touch="sneak">🤫<small>Discret</small></button>
+          <button class="tb tb-light" data-touch="light">🔦<small>Lampe</small></button>
+          <button class="tb tb-util" data-touch="utility">🎒<small>Objet</small></button>
+          <button class="tb tb-talk" data-touch="talk">🎙<small>Parler</small></button>
+          <button class="tb tb-radio" data-touch="radio">📻<small>Radio</small></button>
+          <button class="tb tb-emote" data-touch="emote">😱<small>Emote</small></button>
+          <button class="tb tb-chat" data-touch="chat">💬<small>Chat</small></button>
+        </div>
+      </div>
+      <div id="pause" class="overlay" hidden>
+        <div class="modal">
+          <h2>Pause</h2>
+          <p class="note" id="pause-note">Le jeu continue pour les autres (et pour les monstres).</p>
+          <button class="btn big" data-action="resume">Reprendre</button>
+          <button class="btn" data-action="settings-ingame">⚙ Réglages</button>
+          <button class="btn" data-action="help-ingame">❔ Commandes</button>
+          <button class="btn" data-action="abandon" id="btn-abandon" hidden>Terminer la mission (tous les humains sont hors-jeu)</button>
+          <button class="btn danger" data-action="quit-game">Quitter la mission</button>
+        </div>
+      </div>
+      <div id="rotate-hint" class="rotate-hint" hidden>↻ Tournez votre téléphone en mode paysage</div>
+    </section>
+
+    <!-- ======================= RÉSULTATS ======================= -->
+    <section id="screen-results" class="screen">
+      <div class="results-wrap">
+        <header>
+          <h1 id="res-title">MISSION RÉUSSIE</h1>
+          <p id="res-sub"></p>
+        </header>
+        <div class="results-grid">
+          <div class="panel">
+            <h3>Bilan</h3>
+            <div id="res-summary" class="res-summary"></div>
+            <h3>Objectifs secondaires</h3>
+            <ul id="res-side" class="res-list"></ul>
+            <h3>Votre paie</h3>
+            <div id="res-pay" class="res-pay"></div>
+          </div>
+          <div class="panel">
+            <h3>Distinctions</h3>
+            <div id="res-awards" class="awards"></div>
+            <h3>Équipe</h3>
+            <ul id="res-players" class="res-list"></ul>
+          </div>
+          <div class="panel">
+            <h3>Moments forts</h3>
+            <canvas id="replay-canvas" width="320" height="240"></canvas>
+            <ul id="res-highlights" class="res-list highlights"></ul>
+          </div>
+        </div>
+        <div class="results-actions">
+          <button class="btn big primary" data-action="back-lobby" id="btn-back-lobby">↺ Retour au salon</button>
+          <button class="btn" data-action="menu">Menu principal</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= FENÊTRES ======================= -->
+    <div id="modal" class="overlay" hidden><div class="modal wide"><button class="close" data-action="close-modal" aria-label="Fermer">✕</button><div id="modal-body"></div></div></div>
+    <div id="toast" class="toast" hidden></div>
+    <div id="voice-audio" hidden></div>
+  </div>
+  <script type="module" src="main.js"></script>
+</body>
+</html>
