@@ -34,7 +34,7 @@ void fragment() {
 	float f = tri(lpos, w, scale * 4.0);
 	float vn = tri(lpos + vec3(3.1), w, scale * 1.7);
 	float vein = (1.0 - smoothstep(0.0, 0.035, abs(vn - 0.5))) * veins;
-	vec3 col = mix(dark_color.rgb, base_color.rgb, smoothstep(0.2, 0.8, m * 0.7 + f * 0.3));
+	vec3 col = mix(dark_color.rgb, base_color.rgb, clamp((m * 0.7 + f * 0.3 - 0.5) * 1.3 + 0.55, 0.0, 1.0));
 	col = mix(col, vein_color.rgb, vein * 0.8);
 	float crack = 0.0;
 	if (plastic > 0.0) {
@@ -54,7 +54,7 @@ void fragment() {
 	float hx = tri(lpos + vec3(e, 0, 0), w, scale * 4.0);
 	float hy = tri(lpos + vec3(0, e, 0), w, scale * 4.0);
 	float hz = tri(lpos + vec3(0, 0, e), w, scale * 4.0);
-	vec3 g = vec3(hx - h0, hy - h0, hz - h0) * 10.0;
+	vec3 g = vec3(hx - h0, hy - h0, hz - h0) * 4.0;
 	vec3 ln = normalize(lnrm - g * (0.6 - plastic * 0.4));
 	NORMAL = normalize((VIEW_MATRIX * MODEL_MATRIX * vec4(ln, 0.0)).xyz);
 }

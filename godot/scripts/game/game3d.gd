@@ -578,9 +578,8 @@ func _render(alpha: float, me_alpha: float, dt: float) -> void:
 		var a = float(p.a) if p.id != my_id else me.angle
 		v.rotation.y = lerp_angle(v.rotation.y, -a, minf(1.0, dt * 14.0))
 		v.animate(p, dt, t)
-		if p.id == my_id and not autopilot:
-			v.visible = st == "alive" and me.hidden == 0
-			v.rig.head.visible = false
+		if p.id == my_id:
+			v.visible = false     # vue subjective : on ne dessine pas son propre corps
 		if p.st == "dead" and st != "dead":
 			v.visible = false     # les fantômes ne sont visibles que des autres fantômes
 	# créatures
@@ -609,11 +608,11 @@ func _render(alpha: float, me_alpha: float, dt: float) -> void:
 		if carrier != null and cur.has(carrier):
 			var cp = _interp(carrier, alpha)
 			var ca = float(mps[carrier].a) if mps.has(carrier) else 0.0
-			if carrier == my_id and not autopilot:
+			if carrier == my_id:
 				# objet porté par soi : devant la caméra
 				cp = mp
 				ca = me.angle
-				h = eye - 0.75
+				h = eye - 0.95
 			else:
 				h = 0.85
 			pos = cp + Vector2(cos(ca), sin(ca)) * 0.45

@@ -42,10 +42,8 @@ func setup(id: String, cos: Dictionary, local := false, with_light := true) -> v
 	is_local = local
 	beam_color = light_color(cos)
 	var suit = suit_color(cos)
-	var fabric = Mats.skin("suit_" + suit.to_html(false), {"base_color": suit, "dark_color": suit.darkened(0.45), "vein_color": suit.darkened(0.3),
-		"rim_color": suit.lightened(0.3), "wetness": 0.05, "veins": 0.0, "rim": 0.1, "scale": 6.0})
-	var skin = Mats.skin("human_skin", {"base_color": Color(0.78, 0.6, 0.5), "dark_color": Color(0.45, 0.3, 0.25), "vein_color": Color(0.6, 0.35, 0.35),
-		"wetness": 0.2, "veins": 0.05, "rim": 0.2})
+	var fabric = Mats.std("suit_" + suit.to_html(false), suit.darkened(0.1), 0.85)
+	var skin = Mats.std("human_skin", Color(0.72, 0.55, 0.46), 0.6)
 	var dark = Mats.std("boot", Color(0.08, 0.07, 0.06), 0.8)
 	var reflect = Mats.std("reflective", Color(0.85, 0.85, 0.8), 0.25, 0.0, 0.3)
 	var body = Parts.pivot(self, Vector3.ZERO)

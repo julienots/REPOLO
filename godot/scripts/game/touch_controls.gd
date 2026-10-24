@@ -28,10 +28,10 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	buttons = [
 		{"id": "action", "label": "ACTION", "pos": Vector2(-120, -130), "r": 62.0},
-		{"id": "throw", "label": "LANCER", "pos": Vector2(-250, -80), "r": 44.0},
-		{"id": "use", "label": "OBJET", "pos": Vector2(-240, -200), "r": 40.0},
-		{"id": "light", "label": "LAMPE", "pos": Vector2(-120, -275), "r": 40.0},
-		{"id": "crouch", "label": "ACCROUPI", "pos": Vector2(-330, -170), "r": 40.0},
+		{"id": "throw", "label": "LANCER", "pos": Vector2(-255, -75), "r": 44.0},
+		{"id": "use", "label": "OBJET", "pos": Vector2(-255, -205), "r": 40.0},
+		{"id": "light", "label": "LAMPE", "pos": Vector2(-120, -280), "r": 40.0},
+		{"id": "crouch", "label": "ACCROUPI", "pos": Vector2(-385, -140), "r": 44.0},
 		{"id": "pause", "label": "II", "pos": Vector2(-60, 0), "r": 30.0},
 	]
 

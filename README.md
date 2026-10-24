@@ -109,10 +109,10 @@ Variables d'environnement utiles : `PORT` (défaut 8080), `MAX_ROOMS` (200), `MA
 
 ## Limites connues (honnêtement)
 
-- **C'est un jeu web 2D vu de dessus**, pas un jeu 3D natif. Choix volontaire : une seule base de code jouable immédiatement sur PC et Android, testable automatiquement, légère pour les téléphones modestes. Voir `docs/ARCHITECTURE.md`.
+- **La version principale est un jeu web 2D vu de dessus.** Une **version 3D** (moteur Godot, vue à la première personne) existe aussi dans `godot/` : mêmes règles, créatures, cartes et serveur — voir `docs/GODOT_3D.md` et ses propres limites (pas de chat vocal en 3D, rendu procédural et non photoréaliste, pas encore testée sur un vrai téléphone).
 - **Chat vocal** : vérifié automatiquement entre deux navigateurs sur la même machine (connexion WebRTC, appuyer-pour-parler, voix transmise à la simulation). **Pas encore testé** entre deux réseaux Internet différents : sans serveur TURN, environ une partie des connexions (4G, réseaux d'entreprise) peuvent échouer. Maillage pair-à-pair prévu pour 4 à 6 joueurs.
 - **iOS / Safari** : le jeu devrait fonctionner (WebRTC et WebAudio sont supportés sur iOS récents) mais **n'a pas été testé sur un appareil Apple**. Le plein écran et le verrouillage en paysage sont limités sur iPhone.
-- **Application Android native (.apk)** : non produite. Le jeu s'installe comme PWA. Un emballage (Capacitor ou TWA) est possible plus tard sans réécrire le jeu.
+- **Applications Android (.apk)** : produites automatiquement par GitHub Actions et signées avec une clé de débogage (installation « source inconnue », pas de Play Store) — 2D : release `apk-latest` (Capacitor) ; 3D : release `apk-3d-latest` (Godot). La version 2D reste aussi installable comme PWA.
 - **Progression stockée dans le navigateur** : effacer les données du site efface la progression (utilisez l'export). Elle n'est pas vérifiée par le serveur (sans conséquence en coopératif).
 - **Équilibrage** : réglé par simulations automatiques de parties de bots et de courtes sessions ; il faudra l'ajuster avec de vraies parties entre amis.
 - Les environnements « centre commercial », « installation de recherche » et « zone de stockage » de la vision du projet ne sont **pas encore** créés (3 lieux sur 6).
@@ -135,3 +135,4 @@ Le détail de ce qui est testé (et de ce qui ne l'est pas) est dans `docs/TESTS
 - `docs/ARCHITECTURE.md` — choix techniques, organisation du code, protocole réseau, comment ajouter du contenu, renommer le jeu.
 - `docs/ROADMAP.md` — plan de développement, risques, prochaines étapes.
 - `docs/TESTS.md` — rapport de tests.
+- `docs/GODOT_3D.md` — version 3D (Godot) : commandes, rendu, multijoueur, limites.

@@ -82,8 +82,8 @@ void fragment() {
 	vec2 uv = plane_uv(wpos, n);
 	float seam = pattern_mask(uv, cr);
 
-	float v = mid * 0.6 + fine * 0.4;
-	vec3 col = mix(color_b.rgb, color_a.rgb, smoothstep(0.25, 0.75, v));
+	float v = mid * 0.55 + fine * 0.25 + big * 0.2;
+	vec3 col = mix(color_b.rgb, color_a.rgb, clamp((v - 0.5) * 1.1 + 0.5, 0.0, 1.0));
 	if (pattern == 1 || pattern == 5) col *= 0.85 + cr * 0.3;
 	if (pattern == 2) col *= 0.75 + cr * 0.45;
 	if (pattern == 4) col = mix(col, col * 0.78, cr);
@@ -92,8 +92,8 @@ void fragment() {
 		col *= 0.85 + brush * 0.3;
 	}
 	// taches d'humidité / moisissure
-	float stain = smoothstep(0.62, 0.8, big) * stains;
-	col = mix(col, col * vec3(0.55, 0.5, 0.42), stain);
+	float stain = smoothstep(0.6, 0.85, big) * stains;
+	col = mix(col, col * vec3(0.7, 0.66, 0.58), stain);
 	// crasse au pied des murs (et sous les plafonds)
 	if (abs(n.y) < 0.5) {
 		float g = 1.0 - smoothstep(0.0, grime_height, wpos.y);
@@ -121,7 +121,7 @@ void fragment() {
 	float hx = tri(wpos + tx * e, w, scale * detail_scale);
 	float hy = tri(wpos + ty * e, w, scale * detail_scale);
 	float b = bump * (1.0 - puddle);
-	vec3 bn = normalize(n - (tx * (hx - h0) + ty * (hy - h0)) * b * 18.0 - (tx + ty) * seam * 0.0);
+	vec3 bn = normalize(n - (tx * (hx - h0) + ty * (hy - h0)) * b * 5.0);
 	NORMAL = normalize((VIEW_MATRIX * vec4(bn, 0.0)).xyz);
 
 	ALBEDO = col;

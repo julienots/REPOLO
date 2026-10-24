@@ -28,6 +28,14 @@ var center_t = 0.0
 var font_size = 18
 
 
+static func place(c: Control, preset: int, off: Vector2, size: Vector2) -> void:
+	c.set_anchors_preset(preset)
+	c.offset_left = off.x
+	c.offset_top = off.y
+	c.offset_right = off.x + size.x
+	c.offset_bottom = off.y + size.y
+
+
 static func _style_bar(bar: ProgressBar, col: Color) -> void:
 	var bg = StyleBoxFlat.new()
 	bg.bg_color = Color(0, 0, 0, 0.55)
@@ -93,14 +101,12 @@ func build(mobile: bool) -> void:
 	tl.add_child(events_label)
 	# bas gauche : état
 	stats_box = VBoxContainer.new()
-	stats_box.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	stats_box.position = Vector2(18, -150)
+	place(stats_box, Control.PRESET_BOTTOM_LEFT, Vector2(18, -150), Vector2(240, 130))
 	stats_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(stats_box)
 	if mobile:
 		# sur téléphone, le joystick occupe le bas gauche : l'état passe en haut à droite
-		stats_box.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-		stats_box.position = Vector2(-240, 14)
+		place(stats_box, Control.PRESET_TOP_RIGHT, Vector2(-330, 14), Vector2(240, 130))
 	hp_label = _label("", font_size + 2, Color(1.0, 0.35, 0.3))
 	stats_box.add_child(hp_label)
 	stamina_bar = ProgressBar.new()
@@ -118,52 +124,41 @@ func build(mobile: bool) -> void:
 	# viseur + invite + jauge
 	crosshair = ColorRect.new()
 	crosshair.color = Color(1, 1, 1, 0.55)
-	crosshair.size = Vector2(4, 4)
-	crosshair.set_anchors_preset(Control.PRESET_CENTER)
-	crosshair.position = Vector2(-2, -2)
+	place(crosshair, Control.PRESET_CENTER, Vector2(-2, -2), Vector2(4, 4))
 	crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(crosshair)
 	prompt = _label("", font_size)
-	prompt.set_anchors_preset(Control.PRESET_CENTER)
 	prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	prompt.position = Vector2(-300, 26)
-	prompt.size = Vector2(600, 30)
+	place(prompt, Control.PRESET_CENTER, Vector2(-320, 26), Vector2(640, 30))
 	add_child(prompt)
 	channel_bar = ProgressBar.new()
-	channel_bar.set_anchors_preset(Control.PRESET_CENTER)
-	channel_bar.position = Vector2(-110, 60)
-	channel_bar.size = Vector2(220, 10)
+	place(channel_bar, Control.PRESET_CENTER, Vector2(-110, 62), Vector2(220, 10))
 	channel_bar.max_value = 1.0
 	_style_bar(channel_bar, Color(0.3, 0.9, 1.0))
 	channel_bar.visible = false
 	add_child(channel_bar)
 	center_label = _label("", font_size + 10, Color(1.0, 0.85, 0.75))
-	center_label.set_anchors_preset(Control.PRESET_CENTER)
 	center_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	center_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	center_label.position = Vector2(-420, -150)
-	center_label.size = Vector2(840, 120)
+	place(center_label, Control.PRESET_CENTER, Vector2(-420, -170), Vector2(840, 120))
 	add_child(center_label)
 	# annonces (haut centre)
 	feed_box = VBoxContainer.new()
-	feed_box.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	feed_box.position = Vector2(-330, 14)
-	feed_box.size = Vector2(660, 200)
+	place(feed_box, Control.PRESET_CENTER_TOP, Vector2(-330, 110), Vector2(660, 200))
 	feed_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(feed_box)
 	# sous-titres (bas centre)
 	subs_box = VBoxContainer.new()
-	subs_box.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	subs_box.position = Vector2(-380, -190 if mobile else -150)
-	subs_box.size = Vector2(760, 130)
+	place(subs_box, Control.PRESET_CENTER_BOTTOM, Vector2(-380, -200 if mobile else -160), Vector2(760, 130))
 	subs_box.alignment = BoxContainer.ALIGNMENT_END
 	subs_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(subs_box)
 	# équipe (bas droite / haut droite sous l'état en mobile)
 	team_label = _label("", font_size - 4, Color(0.85, 0.85, 0.85))
-	team_label.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT if not mobile else Control.PRESET_TOP_RIGHT)
-	team_label.position = Vector2(-240, -130) if not mobile else Vector2(-240, 120)
-	team_label.size = Vector2(230, 120)
+	if mobile:
+		place(team_label, Control.PRESET_TOP_RIGHT, Vector2(-330, 130), Vector2(240, 120))
+	else:
+		place(team_label, Control.PRESET_BOTTOM_RIGHT, Vector2(-250, -130), Vector2(240, 120))
 	add_child(team_label)
 
 
