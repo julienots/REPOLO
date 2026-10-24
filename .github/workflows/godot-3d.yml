@@ -72,7 +72,10 @@ jobs:
           sudo apt-get install -y -qq xvfb mesa-utils >/dev/null
           if [ -f godot/tools/screenshots.tscn ]; then
             mkdir -p shots
-            xvfb-run -a -s "-screen 0 1280x720x24" godot --path godot --rendering-driver opengl3 res://tools/screenshots.tscn -- --out="$PWD/shots" 2>&1 | tail -40
+            timeout 300 xvfb-run -a -s "-screen 0 1280x720x24" godot --path godot --rendering-driver opengl3 res://tools/screenshots.tscn -- --out="$PWD/shots" > shots.log 2>&1 || true
+            tail -60 shots.log
+            echo "---- erreurs du rendu ----"
+            grep -E "SCRIPT ERROR|SHADER ERROR|ERROR|error\(" shots.log | sort | uniq -c | sort -rn | head -40 || true
             ls -la shots
           fi
 

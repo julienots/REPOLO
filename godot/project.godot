@@ -12,6 +12,11 @@ config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://icon.png"
 boot_splash/bg_color=Color(0.05, 0.06, 0.07, 1)
 
+[audio]
+
+general/text_to_speech=true
+driver/enable_input=true
+
 [autoload]
 
 Data="*res://scripts/core/data.gd"
@@ -27,7 +32,7 @@ window/handheld/orientation=4
 [input_devices]
 
 pointing/emulate_touch_from_mouse=false
-pointing/emulate_mouse_from_touch=false
+pointing/emulate_mouse_from_touch=true
 
 [physics]
 

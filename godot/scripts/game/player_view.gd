@@ -94,8 +94,11 @@ func setup(id: String, cos: Dictionary, local := false, with_light := true) -> v
 	for c in find_children("*", "MeshInstance3D", true, false):
 		meshes.append(c)
 	if local:
-		# le joueur local ne voit pas sa propre tête (caméra à l'intérieur)
+		# le joueur local ne voit pas sa propre tête (caméra à l'intérieur) et son corps
+		# ne doit pas masquer sa propre lampe
 		neck.visible = false
+		for m in meshes:
+			m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 
 func _mask(head: Node3D, kind: String) -> void:
