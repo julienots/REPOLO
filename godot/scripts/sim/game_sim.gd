@@ -203,33 +203,42 @@ func player_env(p: SP) -> Dictionary:
 
 
 func speed_for(mode: String, p: SP) -> float:
-	if p.state == "downed":
-		return S("crawlSpeed")
-	if p.state == "dead":
-		return S("ghostSpeed")
+	return speed_for_state(_sim, mode, p.state, p.stamina)
+
+
+static func speed_for_state(sim: Dictionary, mode: String, state: String, stamina: float) -> float:
+	if state == "downed":
+		return float(sim.crawlSpeed)
+	if state == "dead":
+		return float(sim.ghostSpeed)
 	if mode == "sneak":
-		return S("sneakSpeed")
-	if mode == "sprint" and p.stamina > 0.05:
-		return S("sprintSpeed")
-	return S("walkSpeed")
+		return float(sim.sneakSpeed)
+	if mode == "sprint" and stamina > 0.05:
+		return float(sim.sprintSpeed)
+	return float(sim.walkSpeed)
 
 
 # Déplacement (bots côté simulation, joueur local côté client) : identique à movement.js
 func step_movement(p: SP, mx: float, my: float, mode: String, env: Dictionary, dt: float) -> void:
+	move_step(grid, map.w, map.h, _sim, p, mx, my, mode, env, dt)
+
+
+# Version autonome (utilisée aussi par le client en ligne pour prédire son propre déplacement).
+static func move_step(gr: Grid, w: int, h: int, sim: Dictionary, p, mx: float, my: float, mode: String, env: Dictionary, dt: float) -> void:
 	var length = sqrt(mx * mx + my * my)
 	if length > 1.0:
 		mx /= length
 		my /= length
-	var spd = speed_for(mode, p) * (1.0 if p.state == "dead" else float(env.get("speedMul", 1.0)))
+	var spd = speed_for_state(sim, mode, p.state, p.stamina) * (1.0 if p.state == "dead" else float(env.get("speedMul", 1.0)))
 	var accel = 12.0 * float(env.get("friction", 1.0))
 	var k = minf(1.0, accel * dt)
 	p.vx += (mx * spd - p.vx) * k
 	p.vy += (my * spd - p.vy) * k
 	if p.state == "dead":
-		p.x = clampf(p.x + p.vx * dt, 0.5, map.w - 0.5)
-		p.y = clampf(p.y + p.vy * dt, 0.5, map.h - 0.5)
+		p.x = clampf(p.x + p.vx * dt, 0.5, w - 0.5)
+		p.y = clampf(p.y + p.vy * dt, 0.5, h - 0.5)
 		return
-	var r = grid.move_circle(p.x, p.y, p.vx * dt, p.vy * dt, S("playerRadius"))
+	var r = gr.move_circle(p.x, p.y, p.vx * dt, p.vy * dt, float(sim.playerRadius))
 	if r.hit_x:
 		p.vx *= -0.15
 	if r.hit_y:
