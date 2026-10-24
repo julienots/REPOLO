@@ -85,15 +85,30 @@ export class LocalTransport {
   close() { this.room.stopLoop(); }
 }
 
-export async function serverAvailable() {
+// Adresse du serveur multijoueur : la même origine que la page (version web),
+// ou une adresse saisie par le joueur (application Android, ex. « 192.168.1.20:8080 »).
+export function serverBase(custom) {
+  const c = String(custom || '').trim().replace(/\/+$/, '');
+  if (!c) return isApp() ? null : location.origin;
+  if (/^https?:\/\//i.test(c)) return c;
+  return `http://${c}`;
+}
+
+export function isApp() { return !!window.Capacitor?.isNativePlatform?.(); }
+
+export async function serverAvailable(base) {
+  if (!base) return null;
   try {
-    const r = await fetch('/api/info', { cache: 'no-store' });
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 4000);
+    const r = await fetch(`${base}/api/info`, { cache: 'no-store', signal: ctrl.signal });
+    clearTimeout(t);
     if (!r.ok) return null;
     return await r.json();
   } catch { return null; }
 }
 
-export function wsUrl() {
-  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  return `${proto}//${location.host}/ws`;
+export function wsUrl(base) {
+  const u = new URL(base || location.origin);
+  return `${u.protocol === 'https:' ? 'wss:' : 'ws:'}//${u.host}/ws`;
 }

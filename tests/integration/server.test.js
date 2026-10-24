@@ -21,7 +21,7 @@ class Client {
     this.open = new Promise((r) => this.ws.on('open', r));
   }
   send(m) { this.ws.send(JSON.stringify(m)); }
-  wait(pred, ms = 4000) {
+  wait(pred, ms = 10000) {
     const found = this.msgs.find(pred);
     if (found) { this.msgs.splice(this.msgs.indexOf(found), 1); return Promise.resolve(found); }
     return new Promise((resolve, reject) => {

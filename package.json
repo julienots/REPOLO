@@ -11,15 +11,24 @@
     "test": "node --test --test-concurrency=1 \"tests/unit/*.test.js\" \"tests/integration/*.test.js\"",
     "test:e2e": "node tests/e2e/run-e2e.mjs",
     "sim": "node scripts/simulate.mjs",
-    "icons": "python3 scripts/make_icons.py"
+    "icons": "python3 scripts/make_icons.py",
+    "build:web": "node scripts/build-web.mjs",
+    "android:sync": "node scripts/build-web.mjs && npx cap sync android",
+    "android:apk": "npm run android:sync && cd android && ./gradlew assembleDebug"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
+    "three": "0.170.0",
     "ws": "^8.18.0"
   },
   "optionalDependencies": {
     "selfsigned": "^5.5.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "7.6.9",
+    "@capacitor/android": "7.6.9",
+    "@capacitor/core": "7.6.9"
   }
 }

@@ -183,10 +183,10 @@ export class LobbyUI {
   }
 
   copyInvite() {
-    const url = `${location.origin}${location.pathname}?join=${this.state.code}`;
+    const url = `${this.app.base || location.origin}/?join=${this.state.code}`;
     const text = `Rejoins ma mission sur Opération Panique ! Code : ${this.state.code} — ${url}`;
     if (navigator.share && matchMedia('(pointer: coarse)').matches) navigator.share({ title: 'Opération Panique', text, url }).catch(() => {});
-    else navigator.clipboard?.writeText(url).then(() => this.app.toast('Lien d\'invitation copié !'), () => this.app.toast(`Code : ${this.state.code}`));
+    else navigator.clipboard?.writeText(`${text}`).then(() => this.app.toast('Lien d\'invitation copié !'), () => this.app.toast(`Code : ${this.state.code}`));
   }
 }
 

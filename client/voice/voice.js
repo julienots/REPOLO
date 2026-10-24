@@ -26,8 +26,13 @@ export class VoiceChat {
     this.iceServers = [{ urls: 'stun:stun.l.google.com:19302' }];
     this.lastVoiceSend = 0;
     this.error = null;
-    fetch('/api/ice').then((r) => r.ok && r.json()).then((j) => { if (j?.iceServers) this.iceServers = j.iceServers; }).catch(() => {});
+    this.loadIce(location.origin);
     document.addEventListener('visibilitychange', () => { if (document.hidden) this.setPtt(false), this.setRadio(false); });
+  }
+
+  loadIce(base) {
+    if (!base) return;
+    fetch(`${base}/api/ice`).then((r) => r.ok && r.json()).then((j) => { if (j?.iceServers) this.iceServers = j.iceServers; }).catch(() => {});
   }
 
   get supported() { return !!(navigator.mediaDevices?.getUserMedia && window.RTCPeerConnection); }

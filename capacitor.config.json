@@ -1,0 +1,13 @@
+{
+  "appId": "com.recupexpress.operationpanique",
+  "appName": "Opération Panique",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true,
+    "backgroundColor": "#0d0f12"
+  }
+}

@@ -6,7 +6,7 @@ import { AudioEngine } from './audio/audio.js';
 import { VoiceChat } from './voice/voice.js';
 import { Input } from './input/input.js';
 import { Renderer } from './render/renderer.js';
-import { WsTransport, LocalTransport, serverAvailable, wsUrl } from './net/transport.js';
+import { WsTransport, LocalTransport, serverAvailable, wsUrl, serverBase, isApp } from './net/transport.js';
 import { ClientGame } from './game/client-game.js';
 import { LobbyUI } from './ui/lobby.js';
 import { ResultsUI } from './ui/results.js';
@@ -42,7 +42,9 @@ class App {
     this.loop();
     this.checkServer();
     this.handleDeepLink();
-    if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+    $('server-url').value = this.settings.serverUrl || '';
+    $('server-url').addEventListener('change', (e) => { this.settings.serverUrl = e.target.value.trim(); this.saveSettings(); this.checkServer(); });
+    if ('serviceWorker' in navigator && location.protocol !== 'file:' && !isApp()) navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 
   detectTouch() {
@@ -55,9 +57,13 @@ class App {
   }
 
   async checkServer() {
-    this.server = await serverAvailable();
+    this.base = serverBase(this.settings.serverUrl);
     const st = $('server-status');
-    if (this.server) st.textContent = `🟢 Serveur en ligne disponible (v${this.server.version}).`;
+    $('server-row').hidden = !isApp() && !this.settings.serverUrl;
+    st.textContent = this.base ? '… recherche du serveur multijoueur' : '';
+    this.server = await serverAvailable(this.base);
+    if (this.server) { st.textContent = `🟢 Serveur multijoueur connecté (${this.base.replace(/^https?:\/\//, '')}, v${this.server.version}).`; this.voice.loadIce(this.base); }
+    else if (isApp()) st.textContent = '🟠 Solo disponible. Pour jouer à plusieurs, entrez l\'adresse du serveur (ex. 192.168.1.20:8080 affichée par « npm start » sur un PC).';
     else st.textContent = '🟠 Aucun serveur de jeu détecté : le mode solo fonctionne, le multijoueur en ligne nécessite de lancer le serveur (voir README).';
     for (const b of document.querySelectorAll('[data-action="create"], [data-action="join"]')) b.disabled = !this.server;
     $('join-code').disabled = !this.server;
@@ -162,7 +168,7 @@ class App {
     this.audio.unlock();
     const code = $('join-code').value.trim().toUpperCase();
     if (kind === 'join' && code.length < 4) return this.toast('Entrez le code d\'invitation (5 caractères).');
-    this.attachTransport(new WsTransport(wsUrl()));
+    this.attachTransport(new WsTransport(wsUrl(this.base)));
     this.transport.send(kind === 'create' ? { t: 'create', hello: this.hello() } : { t: 'join', code, hello: this.hello() });
   }
 

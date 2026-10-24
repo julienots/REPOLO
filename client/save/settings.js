@@ -28,6 +28,7 @@ export const DEFAULT_SETTINGS = {
   touchControls: 'auto',     // auto | on | off
   keys: DEFAULT_KEYS,
   mutedPeers: {},
+  serverUrl: '',             // application Android : adresse du serveur multijoueur
 };
 
 export function loadSettings() {

@@ -1,0 +1,85 @@
+# Construit l'APK Android (application Capacitor qui embarque le jeu) et la publie
+# dans une « Release » GitHub téléchargeable depuis un téléphone.
+name: APK Android
+
+on:
+  push:
+    branches: [main, master, ccr-fb0844a4-g9ok83]
+    paths:
+      - 'client/**'
+      - 'shared/**'
+      - 'android/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'capacitor.config.json'
+      - 'scripts/build-web.mjs'
+      - '.github/workflows/android-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Dépendances
+        run: npm ci
+
+      - name: Tests du jeu
+        run: npm test
+
+      - name: Assemblage du jeu + synchronisation Android
+        run: |
+          node scripts/build-web.mjs
+          npx cap sync android
+
+      - name: Compilation de l'APK
+        working-directory: android
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+          VERSION_NAME: 0.1.${{ github.run_number }}
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Nommage
+        id: name
+        run: |
+          FILE="OperationPanique-v0.1.${{ github.run_number }}.apk"
+          cp android/app/build/outputs/apk/debug/app-debug.apk "$FILE"
+          ls -la "$FILE"
+          echo "file=$FILE" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk-android
+          path: ${{ steps.name.outputs.file }}
+
+      - name: Publication (Release « apk-latest »)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete apk-latest --yes --cleanup-tag || true
+          gh release create apk-latest "${{ steps.name.outputs.file }}" \
+            --prerelease \
+            --target "${{ github.sha }}" \
+            --title "Opération Panique — APK Android (build ${{ github.run_number }})" \
+            --notes "APK de test (signée avec une clé de débogage). Installation : ouvrir ce fichier sur le téléphone Android et autoriser l'installation depuis cette source. Solo hors ligne ; multijoueur : entrer l'adresse du serveur affichée par « npm start » sur un PC du même Wi-Fi. Commit ${{ github.sha }}."
