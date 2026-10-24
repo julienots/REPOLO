@@ -61,3 +61,20 @@ Captures d'écran produites par les tests navigateur : dossier `test-results/`.
 - Déploiement chez un hébergeur ; le `Dockerfile` n'a pas pu être construit (pas de démon Docker dans l'environnement de développement).
 - Installation PWA (manifeste et service worker présents, installation non testée sur appareil).
 - Charge serveur avec beaucoup de salons simultanés.
+
+## Version 3D (Godot) — GitHub Actions `godot-3d.yml`
+
+Lancés à chaque modification de `godot/` ou `shared/` avec le Godot 4.3 officiel :
+
+- **Parité avec la version web** : générateur aléatoire et hachage identiques ; 6 cartes (3 lieux × 2 graines)
+  identiques case par case au générateur JS ; tout le butin accessible sur 24 cartes ; A*, ligne de vue, son.
+- **Compilation** de tous les scripts du jeu.
+- **Simulation** : partie complète de 4 bots ; 8 graines comparées à la version web (même équilibre : 4 réussites
+  sur 8 des deux côtés) ; chaque créature apparaît et agit ; 20 des 27 événements déclenchés (les autres dépendent de
+  conditions de partie) ; résultat de mission ; format de l'instantané.
+- **Réseau réel** : le serveur Node du jeu est lancé, deux clients Godot créent / rejoignent un salon par code,
+  lancent une mission avec bots, l'invité voit l'hôte bouger, la carte reçue est identique à la génération Godot.
+- **Rendu** : captures d'écran sous xvfb (OpenGL logiciel) du menu, des 8 créatures, de parties en pilote
+  automatique dans les 3 lieux, de rencontres et de l'interface tactile (branche `ci-shots`).
+
+Non testé automatiquement : performances et commandes tactiles sur un vrai téléphone Android.
