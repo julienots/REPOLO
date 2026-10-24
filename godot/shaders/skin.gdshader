@@ -30,18 +30,19 @@ float tri(vec3 p, vec3 w, float s) {
 void fragment() {
 	vec3 w = pow(abs(normalize(lnrm)), vec3(3.0));
 	w /= (w.x + w.y + w.z);
-	float m = tri(lpos, w, scale);
-	float f = tri(lpos, w, scale * 4.0);
+	float m = tri(lpos, w, scale * 0.5);
+	float f = tri(lpos, w, scale * 1.4);
 	float vn = tri(lpos + vec3(3.1), w, scale * 1.7);
 	float vein = (1.0 - smoothstep(0.0, 0.035, abs(vn - 0.5))) * veins;
-	vec3 col = mix(dark_color.rgb, base_color.rgb, clamp((m * 0.7 + f * 0.3 - 0.5) * 1.3 + 0.55, 0.0, 1.0));
+	vec3 col = mix(dark_color.rgb, base_color.rgb, clamp((m * 0.8 + f * 0.2 - 0.5) * 1.1 + 0.6, 0.0, 1.0));
 	col = mix(col, vein_color.rgb, vein * 0.8);
 	float crack = 0.0;
 	if (plastic > 0.0) {
-		crack = (1.0 - smoothstep(0.0, 0.012, abs(f - 0.52))) * plastic;
+		crack = (1.0 - smoothstep(0.0, 0.006, abs(m - 0.52))) * plastic;
+		col = mix(col, base_color.rgb, plastic * 0.7);
 		col = mix(col, dark_color.rgb * 0.4, crack);
 	}
-	float rough = mix(0.65, 0.18, wetness * smoothstep(0.3, 0.7, f));
+	float rough = mix(0.6, 0.2, wetness * smoothstep(0.35, 0.65, m));
 	rough = mix(rough, 0.12, plastic * (1.0 - crack));
 	float fres = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 3.0);
 	ALBEDO = col;
@@ -50,11 +51,11 @@ void fragment() {
 	EMISSION = rim_color.rgb * fres * rim * 0.25 + base_color.rgb * emission_boost;
 	// relief
 	float e = 0.02;
-	float h0 = tri(lpos, w, scale * 4.0);
-	float hx = tri(lpos + vec3(e, 0, 0), w, scale * 4.0);
-	float hy = tri(lpos + vec3(0, e, 0), w, scale * 4.0);
-	float hz = tri(lpos + vec3(0, 0, e), w, scale * 4.0);
-	vec3 g = vec3(hx - h0, hy - h0, hz - h0) * 4.0;
+	float h0 = tri(lpos, w, scale * 1.4);
+	float hx = tri(lpos + vec3(e, 0, 0), w, scale * 1.4);
+	float hy = tri(lpos + vec3(0, e, 0), w, scale * 1.4);
+	float hz = tri(lpos + vec3(0, 0, e), w, scale * 1.4);
+	vec3 g = vec3(hx - h0, hy - h0, hz - h0) * 2.5;
 	vec3 ln = normalize(lnrm - g * (0.6 - plastic * 0.4));
 	NORMAL = normalize((VIEW_MATRIX * MODEL_MATRIX * vec4(ln, 0.0)).xyz);
 }

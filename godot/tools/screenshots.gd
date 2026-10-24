@@ -87,8 +87,8 @@ func _gallery() -> void:
 	floor_m.mesh = pm
 	floor_m.material_override = mats.floor
 	root.add_child(floor_m)
-	for w in [[Vector3(-3.5, 1.5, 0), Vector3(0.2, 3.0, 10.0)], [Vector3(0, 1.5, -3.6), Vector3(8.0, 3.0, 0.2)], [Vector3(0, 1.5, 3.6), Vector3(8.0, 3.0, 0.2)],
-			[Vector3(0, 3.05, 0), Vector3(8.0, 0.1, 8.0)]]:
+	for w in [[Vector3(-3.5, 1.7, 0), Vector3(0.2, 3.4, 10.0)], [Vector3(0, 1.7, -3.6), Vector3(8.0, 3.4, 0.2)], [Vector3(0, 1.7, 3.6), Vector3(8.0, 3.4, 0.2)],
+			[Vector3(0, 3.45, 0), Vector3(8.0, 0.1, 8.0)]]:
 		var b = MeshInstance3D.new()
 		var bm = BoxMesh.new()
 		bm.size = w[1]
@@ -119,7 +119,7 @@ func _gallery() -> void:
 	cam.fov = 58
 	root.add_child(cam)
 	cam.current = true
-	cam.position = Vector3(3.2, 1.55, 0.3)
+	cam.position = Vector3(3.6, 1.6, 0.3)
 	cam.look_at(Vector3(0, 1.15, 0), Vector3.UP)
 	var fl = SpotLight3D.new()
 	fl.light_energy = 4.0

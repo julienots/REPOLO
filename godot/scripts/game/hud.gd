@@ -28,7 +28,10 @@ var center_t = 0.0
 var font_size = 18
 
 
-static func place(c: Control, preset: int, off: Vector2, size: Vector2) -> void:
+# Ajoute (si besoin) puis ancre un élément : l'ancrage doit se faire une fois dans l'arbre.
+func place(c: Control, preset: int, off: Vector2, size: Vector2) -> void:
+	if c.get_parent() == null:
+		add_child(c)
 	c.set_anchors_preset(preset)
 	c.offset_left = off.x
 	c.offset_top = off.y
@@ -103,7 +106,6 @@ func build(mobile: bool) -> void:
 	stats_box = VBoxContainer.new()
 	place(stats_box, Control.PRESET_BOTTOM_LEFT, Vector2(18, -150), Vector2(240, 130))
 	stats_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(stats_box)
 	if mobile:
 		# sur téléphone, le joystick occupe le bas gauche : l'état passe en haut à droite
 		place(stats_box, Control.PRESET_TOP_RIGHT, Vector2(-330, 14), Vector2(240, 130))
@@ -126,40 +128,33 @@ func build(mobile: bool) -> void:
 	crosshair.color = Color(1, 1, 1, 0.55)
 	place(crosshair, Control.PRESET_CENTER, Vector2(-2, -2), Vector2(4, 4))
 	crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(crosshair)
 	prompt = _label("", font_size)
 	prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	place(prompt, Control.PRESET_CENTER, Vector2(-320, 26), Vector2(640, 30))
-	add_child(prompt)
 	channel_bar = ProgressBar.new()
 	place(channel_bar, Control.PRESET_CENTER, Vector2(-110, 62), Vector2(220, 10))
 	channel_bar.max_value = 1.0
 	_style_bar(channel_bar, Color(0.3, 0.9, 1.0))
 	channel_bar.visible = false
-	add_child(channel_bar)
 	center_label = _label("", font_size + 10, Color(1.0, 0.85, 0.75))
 	center_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	center_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	place(center_label, Control.PRESET_CENTER, Vector2(-420, -170), Vector2(840, 120))
-	add_child(center_label)
 	# annonces (haut centre)
 	feed_box = VBoxContainer.new()
 	place(feed_box, Control.PRESET_CENTER_TOP, Vector2(-330, 110), Vector2(660, 200))
 	feed_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(feed_box)
 	# sous-titres (bas centre)
 	subs_box = VBoxContainer.new()
 	place(subs_box, Control.PRESET_CENTER_BOTTOM, Vector2(-380, -200 if mobile else -160), Vector2(760, 130))
 	subs_box.alignment = BoxContainer.ALIGNMENT_END
 	subs_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(subs_box)
 	# équipe (bas droite / haut droite sous l'état en mobile)
 	team_label = _label("", font_size - 4, Color(0.85, 0.85, 0.85))
 	if mobile:
 		place(team_label, Control.PRESET_TOP_RIGHT, Vector2(-330, 130), Vector2(240, 120))
 	else:
 		place(team_label, Control.PRESET_BOTTOM_RIGHT, Vector2(-250, -130), Vector2(240, 120))
-	add_child(team_label)
 
 
 func feed(text: String, kind := "info") -> void:

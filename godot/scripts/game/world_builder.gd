@@ -6,7 +6,7 @@ class_name WorldBuilder
 extends Node3D
 
 const T = 1.4          # taille d'une case (m)
-const H = 3.0          # hauteur sous plafond (m)
+const H = 3.4          # hauteur sous plafond (m)
 const DOOR_H = 2.3
 
 var map: Dictionary

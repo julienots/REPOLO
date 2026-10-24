@@ -77,7 +77,8 @@ func _ready() -> void:
 		_start_mic()
 	if not autopilot and not mobile:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	if DisplayServer.tts_get_voices().size() > 0:
+	# synthèse vocale : seulement si l'appareil en a une (Android, Windows, macOS ; Linux avec speech-dispatcher)
+	if cfg.get("tts", true) and OS.get_name() != "Linux":
 		tts_voices = DisplayServer.tts_get_voices_for_language("fr")
 	_tick()
 
@@ -846,4 +847,5 @@ func _exit_tree() -> void:
 		g.net.message.disconnect(g._on_message)
 	if not autopilot:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	DisplayServer.tts_stop()
+	if not tts_voices.is_empty():
+		DisplayServer.tts_stop()
