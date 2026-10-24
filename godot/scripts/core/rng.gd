@@ -36,7 +36,7 @@ func pick(arr: Array):
 
 func shuffle(arr: Array) -> Array:
 	for i in range(arr.size() - 1, 0, -1):
-		var j := int(floor(next() * (i + 1)))
+		var j = int(floor(next() * (i + 1)))
 		var tmp = arr[i]
 		arr[i] = arr[j]
 		arr[j] = tmp
@@ -44,12 +44,12 @@ func shuffle(arr: Array) -> Array:
 
 # weights : poids (même ordre que entries). Retourne null si total nul.
 func weighted(entries: Array, weights: Array):
-	var total := 0.0
+	var total = 0.0
 	for w in weights:
 		total += max(0.0, float(w))
 	if total <= 0.0:
 		return null
-	var r := next() * total
+	var r = next() * total
 	for i in entries.size():
 		r -= max(0.0, float(weights[i]))
 		if r <= 0.0:
@@ -58,7 +58,7 @@ func weighted(entries: Array, weights: Array):
 
 static func hash_string(text: String) -> int:
 	var h: int = 2166136261
-	var buf := text.to_utf16_buffer()
+	var buf = text.to_utf16_buffer()
 	for i in range(0, buf.size(), 2):
 		var code: int = buf[i] | (buf[i + 1] << 8)
 		h = (h ^ code) & MASK

@@ -54,13 +54,16 @@ jobs:
           mv /tmp/tpl/templates/* "$HOME/.local/share/godot/export_templates/${V}.stable/"
           godot --version
 
-      - name: Import du projet
+      - name: Import du projet (échoue si un script contient une erreur)
         run: |
-          godot --headless --path godot --import || godot --headless --editor --path godot --quit-after 600 || true
-          ls godot/.godot | head
+          godot --headless --path godot --import 2>&1 | tee import.log || true
+          if grep -E "SCRIPT ERROR|Parse Error|Compile Error|Failed to load script" import.log; then echo "::error::Erreurs GDScript"; exit 1; fi
 
       - name: Tests (parité avec la version web + simulation)
-        run: godot --headless --path godot res://tests/test_runner.tscn 2>&1 | tee tests.log; grep -q "réussis, 0 échoués" tests.log
+        run: |
+          godot --headless --path godot res://tests/test_runner.tscn 2>&1 | tee tests.log || true
+          if grep -E "SCRIPT ERROR|Parse Error|Compile Error|Failed to load script" tests.log; then echo "::error::Erreurs à l'exécution des tests"; exit 1; fi
+          grep -q "réussis, 0 échoués" tests.log
 
       - name: Captures d'écran (rendu logiciel)
         if: always()
@@ -112,7 +115,8 @@ jobs:
         run: |
           mkdir -p build
           sed -i "s/^version\/code=.*/version\/code=${GITHUB_RUN_NUMBER}/" godot/export_presets.cfg
-          godot --headless --path godot --export-debug "Android" "$PWD/build/OperationPanique3D.apk" 2>&1 | tail -60
+          godot --headless --path godot --export-debug "Android" "$PWD/build/OperationPanique3D.apk" 2>&1 | tee export.log | tail -30
+          if grep -E "SCRIPT ERROR|Parse Error|Compile Error|Failed to load script" export.log; then echo "::error::Erreurs GDScript à l'export"; exit 1; fi
           ls -la build
           test -s build/OperationPanique3D.apk
 

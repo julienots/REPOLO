@@ -2,8 +2,8 @@
 # Code de sortie 0 = tout réussi, 1 = au moins un échec.
 extends Node
 
-var passed := 0
-var failed := 0
+var passed = 0
+var failed = 0
 
 
 func _ready() -> void:
@@ -22,7 +22,7 @@ func _ready() -> void:
 
 # Point d'extension : tests de la simulation (ajoutés par d'autres fichiers)
 func extra_tests() -> Array:
-	var out := []
+	var out = []
 	var sim_tests = load("res://tests/sim_tests.gd")
 	if sim_tests:
 		var inst = sim_tests.new(self)
@@ -42,7 +42,7 @@ func check(name: String, ok: bool, detail := "") -> void:
 
 
 func fixtures() -> Dictionary:
-	var f := FileAccess.open("res://tests/fixtures.json", FileAccess.READ)
+	var f = FileAccess.open("res://tests/fixtures.json", FileAccess.READ)
 	return JSON.parse_string(f.get_as_text())
 
 
@@ -51,11 +51,11 @@ func test_data() -> void:
 
 
 func test_rng_parity() -> void:
-	var fx := fixtures()
-	var r := Rng.new(int(fx.rng.seed))
-	var ok := true
+	var fx = fixtures()
+	var r = Rng.new(int(fx.rng.seed))
+	var ok = true
 	for v in fx.rng.values:
-		var mine := r.next()
+		var mine = r.next()
 		if absf(mine - float(v)) > 1e-12:
 			ok = false
 	check("générateur aléatoire identique à la version web", ok)
@@ -63,16 +63,16 @@ func test_rng_parity() -> void:
 
 
 func test_map_parity() -> void:
-	var fx := fixtures()
+	var fx = fixtures()
 	for ref in fx.maps:
-		var m := MapGen.generate(ref.theme, int(ref.seed))
-		var tiles := ""
+		var m = MapGen.generate(ref.theme, int(ref.seed))
+		var tiles = ""
 		var g: Grid = m.grid
 		for t in g.tiles:
 			tiles += str(t)
 		var same_tiles: bool = tiles == ref.tiles
 		var same_counts: bool = m.items.size() == int(ref.items) and m.lockers.size() == int(ref.lockers) and m.elevators.size() == int(ref.elevators)
-		var detail := ""
+		var detail = ""
 		if not same_tiles:
 			for i in mini(tiles.length(), ref.tiles.length()):
 				if tiles[i] != ref.tiles[i]:
@@ -82,12 +82,12 @@ func test_map_parity() -> void:
 
 
 func test_maps_navigable() -> void:
-	var ok := true
+	var ok = true
 	for theme in ["warehouse", "hotel", "lab"]:
 		for s in range(1, 9):
-			var m := MapGen.generate(theme, s * 7919)
+			var m = MapGen.generate(theme, s * 7919)
 			var g: Grid = m.grid
-			var d := Pathfinding.flood(g, int(floor(m.spawn.x)), int(floor(m.spawn.y)))
+			var d = Pathfinding.flood(g, int(floor(m.spawn.x)), int(floor(m.spawn.y)))
 			for it in m.items:
 				if it.get("secret", false):
 					continue
@@ -97,17 +97,17 @@ func test_maps_navigable() -> void:
 
 
 func test_pathfinding() -> void:
-	var m := MapGen.generate("lab", 77)
+	var m = MapGen.generate("lab", 77)
 	var g: Grid = m.grid
-	var p := Pathfinding.find_path(g, m.spawn.x, m.spawn.y, m.items[0].x, m.items[0].y)
+	var p = Pathfinding.find_path(g, m.spawn.x, m.spawn.y, m.items[0].x, m.items[0].y)
 	check("A* trouve un chemin vers un objet", p.size() > 0)
 
 
 func test_grid_sight_sound() -> void:
-	var g := Grid.new(10, 3)
+	var g = Grid.new(10, 3)
 	for x in 10:
 		g.set_t(x, 1, Grid.FLOOR)
-	var open_los := g.has_los(0.5, 1.5, 9.5, 1.5)
+	var open_los = g.has_los(0.5, 1.5, 9.5, 1.5)
 	g.set_t(5, 1, Grid.WALL)
 	check("la vue est bloquée par un mur", open_los and not g.has_los(0.5, 1.5, 9.5, 1.5))
 	check("le son est étouffé par un mur", g.sound_obstruction(0.5, 1.5, 9.5, 1.5) > 2.0)

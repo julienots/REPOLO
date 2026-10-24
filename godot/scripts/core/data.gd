@@ -6,7 +6,7 @@ var db: Dictionary = {}
 
 
 func _init() -> void:
-	var f := FileAccess.open("res://data/game_data.json", FileAccess.READ)
+	var f = FileAccess.open("res://data/game_data.json", FileAccess.READ)
 	if f == null:
 		push_error("Données introuvables : res://data/game_data.json")
 		return
