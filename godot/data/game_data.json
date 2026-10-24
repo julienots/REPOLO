@@ -1,0 +1,2376 @@
+{
+ "GAME": {
+  "name": "OPÉRATION PANIQUE",
+  "shortName": "Panique",
+  "company": "Récup'Express S.A.R.L.",
+  "tagline": "Récupérez. Survivez. Ne criez pas. (Ou alors criez, c'est drôle.)",
+  "version": "0.1.0",
+  "protocol": 3
+ },
+ "SIM": {
+  "tickRate": 30,
+  "snapshotRate": 15,
+  "playerRadius": 0.3,
+  "walkSpeed": 3,
+  "sneakSpeed": 1.45,
+  "sprintSpeed": 5.2,
+  "crawlSpeed": 0.7,
+  "ghostSpeed": 4.2,
+  "staminaDrain": 0.22,
+  "staminaRegen": 0.14,
+  "maxHp": 3,
+  "bleedOutTime": 28,
+  "reviveTime": 2.6,
+  "leverTime": 2,
+  "departureTime": 12,
+  "interactRange": 1.15,
+  "flashlightRange": 9,
+  "flashlightFov": 1.05,
+  "ambientSight": 1.7,
+  "batteryDrain": 0.004166666666666667,
+  "batteryRegen": 0.0016666666666666668,
+  "noiseLife": 0.9,
+  "graceTime": 35
+ },
+ "LIMITS": {
+  "defaultMaxPlayers": 4,
+  "absoluteMaxPlayers": 8,
+  "nameMaxLength": 16,
+  "chatMaxLength": 140,
+  "reconnectGrace": 90
+ },
+ "MONSTERS": {
+  "sourdine": {
+   "name": "La Sourdine",
+   "behavior": "sourdine",
+   "title": "Aveugle. Entend tout.",
+   "lore": "Une grande chose maigre à la tête en forme de cornet. Elle n'a pas d'yeux, elle n'en a jamais eu besoin.",
+   "clues": [
+    "Cliquetis réguliers : elle « écoute » les murs.",
+    "Accroupissez-vous et taisez-vous : elle passe à côté sans vous voir.",
+    "Votre micro compte : ne criez pas près d'elle."
+   ],
+   "sight": 0,
+   "fov": 0,
+   "hearing": 1.7,
+   "radius": 0.38,
+   "speed": {
+    "roam": 1.25,
+    "investigate": 3.2,
+    "chase": 5.4
+   },
+   "damage": 2,
+   "attackCooldown": 1.6,
+   "cycle": {
+    "active": [
+     70,
+     110
+    ],
+    "rest": [
+     18,
+     28
+    ]
+   },
+   "cost": 2,
+   "minDifficulty": 0
+  },
+  "inspecteur": {
+   "name": "L'Inspecteur",
+   "behavior": "inspecteur",
+   "title": "Contrôle des marchandises.",
+   "lore": "Il porte une lanterne, un tampon et aucun visage. Il veut voir ce que vous transportez.",
+   "clues": [
+    "Sa lanterne jaune le trahit de loin.",
+    "Quand il crie « CONTRÔLE ! », ne bougez plus.",
+    "Il confisque le butin et le range dans son bureau… où l'on peut le reprendre."
+   ],
+   "sight": 8.5,
+   "fov": 0.95,
+   "hearing": 0.7,
+   "radius": 0.34,
+   "speed": {
+    "roam": 1.5,
+    "approach": 2.3,
+    "chase": 4.7
+   },
+   "damage": 2,
+   "attackCooldown": 1.4,
+   "cycle": {
+    "active": [
+     90,
+     140
+    ],
+    "rest": [
+     12,
+     20
+    ]
+   },
+   "cost": 2,
+   "minDifficulty": 0
+  },
+  "mannequine": {
+   "name": "La Mannequine",
+   "behavior": "mannequine",
+   "title": "Ne bouge que si personne ne la regarde.",
+   "lore": "Un mannequin de vitrine au sourire peint. Il était dans la réserve. Puis dans le couloir. Puis derrière vous.",
+   "clues": [
+    "Craquement de plastique : elle vient de bouger.",
+    "Gardez-la dans le faisceau de votre lampe.",
+    "Les pièces éclairées la ralentissent."
+   ],
+   "sight": 14,
+   "fov": 3.141592653589793,
+   "hearing": 0.6,
+   "radius": 0.3,
+   "speed": {
+    "roam": 0,
+    "chase": 6.2
+   },
+   "damage": 3,
+   "attackCooldown": 2.5,
+   "cycle": {
+    "active": [
+     60,
+     100
+    ],
+    "rest": [
+     25,
+     40
+    ]
+   },
+   "cost": 3,
+   "minDifficulty": 1
+  },
+  "demenageur": {
+   "name": "Le Déménageur",
+   "behavior": "demenageur",
+   "title": "Énorme. Maladroit. Pressé.",
+   "lore": "Un colosse avec un carton sur la tête. Il renverse tout, défonce les portes et fonce droit devant.",
+   "clues": [
+    "Le sol tremble quand il approche.",
+    "Il charge en ligne droite : esquivez, il s'assomme contre les murs.",
+    "Il peut ouvrir les murs fissurés… à sa manière."
+   ],
+   "sight": 5.5,
+   "fov": 0.7,
+   "hearing": 1,
+   "radius": 0.46,
+   "speed": {
+    "roam": 1.6,
+    "chase": 3.4,
+    "charge": 7.5
+   },
+   "damage": 2,
+   "attackCooldown": 1.2,
+   "cycle": {
+    "active": [
+     80,
+     120
+    ],
+    "rest": [
+     20,
+     30
+    ]
+   },
+   "cost": 2,
+   "minDifficulty": 0
+  },
+  "berger": {
+   "name": "Le Berger",
+   "behavior": "berger",
+   "title": "Il disperse les troupeaux.",
+   "lore": "Une silhouette à mille bras qui porte une cloche. Il déteste les groupes et adore les retardataires.",
+   "clues": [
+    "Sa cloche tinte plus fort quand vous êtes groupés.",
+    "Son cri « dispersion » renverse tout le monde.",
+    "Il chasse ensuite celui qui est le plus isolé."
+   ],
+   "sight": 9,
+   "fov": 1.2,
+   "hearing": 0.9,
+   "radius": 0.34,
+   "speed": {
+    "roam": 1.4,
+    "stalk": 2.6,
+    "chase": 4.4
+   },
+   "damage": 2,
+   "attackCooldown": 1.5,
+   "cycle": {
+    "active": [
+     80,
+     120
+    ],
+    "rest": [
+     20,
+     30
+    ]
+   },
+   "cost": 2,
+   "minDifficulty": 1
+  },
+  "echo": {
+   "name": "L'Écho",
+   "behavior": "echo",
+   "title": "Répète ce qu'il entend.",
+   "lore": "Une chose plate qui rampe au plafond. Elle a écouté vos pas, vos portes, vos « par ici ! ».",
+   "clues": [
+    "Ses imitations sont un peu trop aiguës et grésillent.",
+    "Un bruit d'objet là où il n'y a rien ? Méfiance.",
+    "Il attend en embuscade près de ses faux bruits."
+   ],
+   "sight": 4,
+   "fov": 1.4,
+   "hearing": 1.3,
+   "radius": 0.3,
+   "speed": {
+    "roam": 1.8,
+    "chase": 3.6
+   },
+   "damage": 2,
+   "attackCooldown": 1.6,
+   "cycle": {
+    "active": [
+     80,
+     120
+    ],
+    "rest": [
+     15,
+     25
+    ]
+   },
+   "cost": 2,
+   "minDifficulty": 1
+  },
+  "sauveteur": {
+   "name": "Le Faux Sauveteur",
+   "behavior": "sauveteur",
+   "title": "« Suivez-moi, la sortie est par là ! »",
+   "lore": "Un secouriste en gilet orange, lanterne à la main. Très serviable. Beaucoup trop serviable.",
+   "clues": [
+    "Sa lanterne est verte. Les vraies sont jaunes.",
+    "Ses pas ne font aucun bruit.",
+    "Éclairez-le en plein visage pour le démasquer."
+   ],
+   "sight": 10,
+   "fov": 1.3,
+   "hearing": 0.8,
+   "radius": 0.3,
+   "speed": {
+    "roam": 1.7,
+    "lead": 2.4,
+    "chase": 5,
+    "flee": 5.5
+   },
+   "damage": 3,
+   "attackCooldown": 2,
+   "cycle": {
+    "active": [
+     90,
+     130
+    ],
+    "rest": [
+     25,
+     40
+    ]
+   },
+   "cost": 2,
+   "minDifficulty": 2
+  },
+  "invite": {
+   "name": "Le Dernier Invité",
+   "behavior": "invite",
+   "title": "Il ressemble à quelqu'un de l'équipe.",
+   "lore": "Il prend l'apparence d'un collègue éloigné. Il sourit un peu trop. Sa lampe ne s'allume jamais.",
+   "clues": [
+    "Il n'a pas de faisceau de lampe.",
+    "Son nom clignote et ses lettres se mélangent.",
+    "Lancez-lui un objet ou éclairez-le de près."
+   ],
+   "sight": 9,
+   "fov": 1.2,
+   "hearing": 0.8,
+   "radius": 0.3,
+   "speed": {
+    "roam": 2.2,
+    "approach": 2.8,
+    "chase": 5,
+    "flee": 5.6
+   },
+   "damage": 2,
+   "attackCooldown": 2,
+   "cycle": {
+    "active": [
+     90,
+     130
+    ],
+    "rest": [
+     20,
+     35
+    ]
+   },
+   "cost": 2,
+   "minDifficulty": 2
+  }
+ },
+ "ITEMS": {
+  "vase": {
+   "name": "Vase Ming (probablement)",
+   "value": [
+    90,
+    160
+   ],
+   "weight": 1,
+   "radius": 0.22,
+   "fragile": 1,
+   "loud": 1.3,
+   "shape": "vase",
+   "color": "#5b8fd6"
+  },
+  "lamp": {
+   "name": "Lampe de chevet hantée",
+   "value": [
+    30,
+    60
+   ],
+   "weight": 1,
+   "radius": 0.2,
+   "fragile": 0.5,
+   "loud": 1,
+   "shape": "lamp",
+   "color": "#e0c060"
+  },
+  "radio_old": {
+   "name": "Vieux poste radio",
+   "value": [
+    50,
+    90
+   ],
+   "weight": 2,
+   "radius": 0.26,
+   "fragile": 0.4,
+   "loud": 1.2,
+   "shape": "radio",
+   "color": "#8a5a3a"
+  },
+  "painting": {
+   "name": "Tableau d'un monsieur triste",
+   "value": [
+    110,
+    200
+   ],
+   "weight": 2,
+   "radius": 0.3,
+   "fragile": 0.6,
+   "loud": 0.9,
+   "shape": "painting",
+   "color": "#a07040"
+  },
+  "tv": {
+   "name": "Télé cathodique",
+   "value": [
+    80,
+    140
+   ],
+   "weight": 3,
+   "radius": 0.34,
+   "fragile": 0.8,
+   "loud": 1.6,
+   "shape": "tv",
+   "color": "#3a3a42"
+  },
+  "safe": {
+   "name": "Petit coffre-fort",
+   "value": [
+    220,
+    340
+   ],
+   "weight": 4,
+   "radius": 0.36,
+   "fragile": 0,
+   "loud": 2.2,
+   "shape": "safe",
+   "color": "#55606a"
+  },
+  "statue": {
+   "name": "Statue de flamant rose",
+   "value": [
+    120,
+    190
+   ],
+   "weight": 3,
+   "radius": 0.3,
+   "fragile": 0.5,
+   "loud": 1.4,
+   "shape": "flamingo",
+   "color": "#ff7aa8"
+  },
+  "clock": {
+   "name": "Horloge qui avance",
+   "value": [
+    60,
+    110
+   ],
+   "weight": 2,
+   "radius": 0.24,
+   "fragile": 0.7,
+   "loud": 1.1,
+   "shape": "clock",
+   "color": "#c9a36a"
+  },
+  "crate": {
+   "name": "Caisse « NE PAS OUVRIR »",
+   "value": [
+    70,
+    130
+   ],
+   "weight": 3,
+   "radius": 0.36,
+   "fragile": 0.2,
+   "loud": 1.5,
+   "shape": "crate",
+   "color": "#9b7a4a"
+  },
+  "toolbox": {
+   "name": "Caisse à outils",
+   "value": [
+    40,
+    70
+   ],
+   "weight": 2,
+   "radius": 0.24,
+   "fragile": 0,
+   "loud": 1.8,
+   "shape": "toolbox",
+   "color": "#c0392b"
+  },
+  "gnome": {
+   "name": "Nain de jardin",
+   "value": [
+    15,
+    30
+   ],
+   "weight": 1,
+   "radius": 0.2,
+   "fragile": 0.6,
+   "loud": 0.8,
+   "shape": "gnome",
+   "color": "#d04040"
+  },
+  "bottle": {
+   "name": "Grand cru douteux",
+   "value": [
+    70,
+    120
+   ],
+   "weight": 1,
+   "radius": 0.16,
+   "fragile": 1,
+   "loud": 1.2,
+   "shape": "bottle",
+   "color": "#6a1b3a"
+  },
+  "trophy": {
+   "name": "Trophée du meilleur employé",
+   "value": [
+    80,
+    120
+   ],
+   "weight": 1,
+   "radius": 0.2,
+   "fragile": 0.2,
+   "loud": 1,
+   "shape": "trophy",
+   "color": "#e8c547"
+  },
+  "servers": {
+   "name": "Baie de serveurs",
+   "value": [
+    250,
+    380
+   ],
+   "weight": 4,
+   "radius": 0.4,
+   "fragile": 0.5,
+   "loud": 2,
+   "shape": "servers",
+   "color": "#2c3e50"
+  },
+  "jar": {
+   "name": "Bocal à spécimen",
+   "value": [
+    90,
+    150
+   ],
+   "weight": 1,
+   "radius": 0.18,
+   "fragile": 1,
+   "loud": 1,
+   "shape": "jar",
+   "color": "#7fd67f"
+  },
+  "microscope": {
+   "name": "Microscope de luxe",
+   "value": [
+    130,
+    190
+   ],
+   "weight": 2,
+   "radius": 0.22,
+   "fragile": 0.8,
+   "loud": 1.2,
+   "shape": "microscope",
+   "color": "#bfc7d0"
+  },
+  "piano": {
+   "name": "Piano droit",
+   "value": [
+    400,
+    520
+   ],
+   "weight": 4,
+   "radius": 0.45,
+   "fragile": 0.3,
+   "loud": 3,
+   "shape": "piano",
+   "color": "#2a1a12",
+   "twoHanded": true
+  },
+  "suitcase": {
+   "name": "Valise oubliée",
+   "value": [
+    60,
+    140
+   ],
+   "weight": 2,
+   "radius": 0.26,
+   "fragile": 0.1,
+   "loud": 1,
+   "shape": "suitcase",
+   "color": "#7b4b94"
+  },
+  "chandelier": {
+   "name": "Lustre en cristal",
+   "value": [
+    200,
+    300
+   ],
+   "weight": 3,
+   "radius": 0.34,
+   "fragile": 1,
+   "loud": 2,
+   "shape": "chandelier",
+   "color": "#dfe8ff"
+  },
+  "golden_gnome": {
+   "name": "Nain de jardin DORÉ",
+   "value": [
+    600,
+    600
+   ],
+   "weight": 2,
+   "radius": 0.22,
+   "fragile": 0,
+   "loud": 1,
+   "shape": "gnome",
+   "color": "#ffd700",
+   "secret": true
+  },
+  "duck": {
+   "name": "Canard géant certifié ISO-9001",
+   "value": [
+    10,
+    10
+   ],
+   "weight": 2,
+   "radius": 0.3,
+   "fragile": 0,
+   "loud": 0.6,
+   "shape": "duck",
+   "color": "#ffd23f",
+   "squeak": true,
+   "quest": true
+  },
+  "urgent_box": {
+   "name": "Colis URGENT",
+   "value": [
+    300,
+    380
+   ],
+   "weight": 3,
+   "radius": 0.32,
+   "fragile": 0.3,
+   "loud": 1.4,
+   "shape": "parcel",
+   "color": "#e67e22"
+  },
+  "junk": {
+   "name": "Truc sans valeur",
+   "value": [
+    1,
+    4
+   ],
+   "weight": 1,
+   "radius": 0.18,
+   "fragile": 0,
+   "loud": 0.8,
+   "shape": "junk",
+   "color": "#777777"
+  },
+  "decoy": {
+   "name": "Leurre sonore",
+   "value": [
+    0,
+    0
+   ],
+   "weight": 1,
+   "radius": 0.14,
+   "fragile": 0,
+   "loud": 0.5,
+   "shape": "decoy",
+   "color": "#2ecc71",
+   "noLoot": true
+  }
+ },
+ "EVENTS": [
+  {
+   "id": "blackout",
+   "name": "BLACK-OUT TOTAL",
+   "category": "tension",
+   "desc": "Toutes les lumières fixes s'éteignent. Il ne reste que vos lampes.",
+   "warn": {
+    "text": "Les néons grésillent…",
+    "time": 3
+   },
+   "duration": [
+    18,
+    26
+   ],
+   "weight": 3,
+   "cooldown": 90,
+   "minTime": 60,
+   "tags": [
+    "dark"
+   ],
+   "mods": {
+    "ambientLight": 0
+   },
+   "monsterMods": {
+    "mannequine": {
+     "speedMul": 0.45
+    }
+   }
+  },
+  {
+   "id": "gravity",
+   "name": "GRAVITÉ DÉTRAQUÉE",
+   "category": "humor",
+   "desc": "Les objets se mettent à flotter. Tenez bien votre butin.",
+   "warn": {
+    "text": "Vos oreilles se bouchent bizarrement…",
+    "time": 2
+   },
+   "duration": [
+    9,
+    13
+   ],
+   "weight": 2,
+   "cooldown": 120,
+   "minTime": 45,
+   "tags": [
+    "physics"
+   ],
+   "mods": {
+    "floatItems": 1,
+    "friction": 0.35
+   }
+  },
+  {
+   "id": "red_alert",
+   "name": "ALERTE ROUGE",
+   "category": "danger",
+   "desc": "Une sirène hurle quelque part. Toutes les créatures convergent vers elle.",
+   "warn": {
+    "text": "Un haut-parleur crachote…",
+    "time": 2
+   },
+   "duration": [
+    12,
+    16
+   ],
+   "weight": 2,
+   "cooldown": 120,
+   "minTime": 90,
+   "conditions": {
+    "maxTension": 0.75
+   },
+   "tags": [
+    "alarm"
+   ],
+   "start": [
+    {
+     "do": "noise",
+     "at": "randomRoom",
+     "loudness": 30,
+     "type": "siren",
+     "remember": "sirenAt"
+    }
+   ],
+   "every": {
+    "period": 3,
+    "actions": [
+     {
+      "do": "noise",
+      "at": "remembered:sirenAt",
+      "loudness": 30,
+      "type": "siren"
+     }
+    ]
+   }
+  },
+  {
+   "id": "no_talking",
+   "name": "INTERDICTION DE PARLER",
+   "category": "tension",
+   "desc": "Les créatures deviennent hypersensibles aux voix. Chuchotez. Ou pas.",
+   "warn": {
+    "text": "Un panneau s'allume : « SILENCE ».",
+    "time": 3
+   },
+   "duration": [
+    22,
+    30
+   ],
+   "weight": 2,
+   "cooldown": 100,
+   "minTime": 40,
+   "tags": [
+    "voice"
+   ],
+   "mods": {
+    "voiceNoise": 3
+   }
+  },
+  {
+   "id": "voice_swap",
+   "name": "VOIX INVERSÉES",
+   "category": "humor",
+   "desc": "Les voix sont déformées et gauche/droite sont inversées. Qui parle ? D'où ?",
+   "warn": null,
+   "duration": [
+    18,
+    24
+   ],
+   "weight": 2,
+   "cooldown": 120,
+   "minTime": 30,
+   "tags": [
+    "voice"
+   ],
+   "mods": {
+    "voiceFx": "robot"
+   }
+  },
+  {
+   "id": "slippery",
+   "name": "SOL GLISSANT",
+   "category": "humor",
+   "desc": "Quelqu'un a renversé 400 litres de cire. Freinez tôt.",
+   "warn": {
+    "text": "Ça sent le produit ménager…",
+    "time": 2
+   },
+   "duration": [
+    14,
+    20
+   ],
+   "weight": 2,
+   "cooldown": 100,
+   "minTime": 30,
+   "tags": [
+    "physics"
+   ],
+   "mods": {
+    "friction": 0.12
+   }
+  },
+  {
+   "id": "urgent_delivery",
+   "name": "LIVRAISON URGENTE",
+   "category": "tension",
+   "desc": "Un colis très précieux vient d'être livré… dans la zone la plus dangereuse.",
+   "warn": null,
+   "duration": 0,
+   "weight": 2,
+   "cooldown": 150,
+   "minTime": 100,
+   "start": [
+    {
+     "do": "spawnItems",
+     "type": "urgent_box",
+     "count": 1,
+     "where": "danger",
+     "drop": true,
+     "ping": true
+    }
+   ]
+  },
+  {
+   "id": "fake_extraction",
+   "name": "LE FAUX FOURGON",
+   "category": "tension",
+   "desc": "Un second fourgon est apparu ! Il est peut-être réel. Vérifiez la plaque.",
+   "warn": null,
+   "duration": [
+    40,
+    50
+   ],
+   "weight": 1.5,
+   "cooldown": 200,
+   "minTime": 120,
+   "conditions": {
+    "minQuota": 0.25
+   },
+   "tags": [
+    "extraction"
+   ],
+   "start": [
+    {
+     "do": "fakeVan"
+    }
+   ],
+   "end": [
+    {
+     "do": "removeFakeVan"
+    }
+   ]
+  },
+  {
+   "id": "invisible_thief",
+   "name": "LE VOLEUR INVISIBLE",
+   "category": "humor",
+   "desc": "Un ricanement… Quelque chose vient de vous faire les poches.",
+   "warn": null,
+   "duration": 0,
+   "weight": 1.5,
+   "cooldown": 140,
+   "minTime": 90,
+   "start": [
+    {
+     "do": "stealCarried",
+     "max": 2
+    }
+   ]
+  },
+  {
+   "id": "flashlight_failure",
+   "name": "PANNE DE LAMPE",
+   "category": "tension",
+   "desc": "Les lampes torches faiblissent et clignotent.",
+   "warn": {
+    "text": "Vos lampes grésillent…",
+    "time": 2
+   },
+   "duration": [
+    12,
+    18
+   ],
+   "weight": 2,
+   "cooldown": 110,
+   "minTime": 60,
+   "tags": [
+    "dark"
+   ],
+   "mods": {
+    "flashlightRange": 0.45,
+    "flicker": 1
+   },
+   "monsterMods": {
+    "mannequine": {
+     "speedMul": 0.5
+    }
+   }
+  },
+  {
+   "id": "crazy_elevator",
+   "name": "ASCENSEUR CAPRICIEUX",
+   "category": "humor",
+   "desc": "Le monte-charge n'en fait qu'à sa tête : il vous dépose n'importe où.",
+   "warn": null,
+   "duration": [
+    30,
+    40
+   ],
+   "weight": 1.5,
+   "cooldown": 140,
+   "minTime": 60,
+   "conditions": {
+    "needsElevators": true
+   },
+   "mods": {
+    "elevatorRandom": 1
+   },
+   "start": [
+    {
+     "do": "noise",
+     "at": "elevators",
+     "loudness": 6,
+     "type": "ding"
+    }
+   ]
+  },
+  {
+   "id": "the_double",
+   "name": "LE DOUBLE",
+   "category": "tension",
+   "desc": "Les balises de position ont un bug : un collègue apparaît à deux endroits.",
+   "warn": null,
+   "duration": [
+    20,
+    30
+   ],
+   "weight": 1.5,
+   "cooldown": 120,
+   "minTime": 60,
+   "conditions": {
+    "minPlayers": 2
+   },
+   "mods": {
+    "fakeTeammate": 1
+   }
+  },
+  {
+   "id": "quality_control",
+   "name": "CONTRÔLE QUALITÉ",
+   "category": "humor",
+   "desc": "La direction exige qu'un canard géant soit livré au point de contrôle. Il couine.",
+   "warn": null,
+   "duration": [
+    75,
+    75
+   ],
+   "weight": 1.5,
+   "cooldown": 300,
+   "minTime": 80,
+   "conditions": {
+    "notDeparting": true
+   },
+   "tags": [
+    "objective"
+   ],
+   "start": [
+    {
+     "do": "questDuck",
+     "reward": 180
+    }
+   ],
+   "end": [
+    {
+     "do": "endQuest"
+    }
+   ]
+  },
+  {
+   "id": "hunt_night",
+   "name": "NUIT DE LA CHASSE",
+   "category": "danger",
+   "desc": "Les créatures sont plus rapides et plus attentives.",
+   "warn": {
+    "text": "Une sirène lointaine annonce la chasse dans 5 secondes !",
+    "time": 5
+   },
+   "duration": [
+    20,
+    28
+   ],
+   "weight": 1.5,
+   "cooldown": 150,
+   "minTime": 150,
+   "conditions": {
+    "maxTension": 0.7
+   },
+   "tags": [
+    "aggro"
+   ],
+   "mods": {
+    "monsterSpeed": 1.2,
+    "monsterHearing": 1.3
+   }
+  },
+  {
+   "id": "item_rain",
+   "name": "PLUIE D'OBJETS",
+   "category": "humor",
+   "desc": "Le faux plafond cède. Il pleut des objets. Certains ont de la valeur.",
+   "warn": {
+    "text": "Le plafond craque au-dessus de vous…",
+    "time": 2
+   },
+   "duration": 0,
+   "weight": 2,
+   "cooldown": 120,
+   "minTime": 50,
+   "start": [
+    {
+     "do": "spawnItems",
+     "table": "theme",
+     "count": 5,
+     "junk": 3,
+     "where": "nearPlayers",
+     "drop": true
+    }
+   ]
+  },
+  {
+   "id": "confetti_alarm",
+   "name": "ALARME DE CONFETTIS",
+   "category": "humor",
+   "desc": "FÉLICITATIONS ! Vous êtes le millionième visiteur ! (Tout le bâtiment l'a entendu.)",
+   "warn": null,
+   "duration": [
+    5,
+    5
+   ],
+   "weight": 1.5,
+   "cooldown": 160,
+   "minTime": 60,
+   "mods": {
+    "confetti": 1
+   },
+   "start": [
+    {
+     "do": "noise",
+     "at": "randomPlayer",
+     "loudness": 18,
+     "type": "fanfare"
+    }
+   ]
+  },
+  {
+   "id": "customer_king",
+   "name": "LE CLIENT EST ROI",
+   "category": "tension",
+   "desc": "Un client spectral attend au fourgon. Il veut un objet précis. Il paie double.",
+   "warn": null,
+   "duration": [
+    80,
+    80
+   ],
+   "weight": 1.5,
+   "cooldown": 300,
+   "minTime": 100,
+   "conditions": {
+    "notDeparting": true
+   },
+   "tags": [
+    "objective"
+   ],
+   "start": [
+    {
+     "do": "customerOrder"
+    }
+   ],
+   "end": [
+    {
+     "do": "endCustomer"
+    }
+   ]
+  },
+  {
+   "id": "radio_silence",
+   "name": "SILENCE RADIO",
+   "category": "tension",
+   "desc": "Les talkies-walkies ne captent plus rien.",
+   "warn": null,
+   "duration": [
+    25,
+    35
+   ],
+   "weight": 1.5,
+   "cooldown": 100,
+   "minTime": 40,
+   "mods": {
+    "radioDisabled": 1
+   }
+  },
+  {
+   "id": "crazy_doors",
+   "name": "PORTES FOLLES",
+   "category": "humor",
+   "desc": "Les portes s'ouvrent et claquent toutes seules. Bruyamment.",
+   "warn": {
+    "text": "Un courant d'air glacé traverse le bâtiment…",
+    "time": 2
+   },
+   "duration": [
+    12,
+    16
+   ],
+   "weight": 2,
+   "cooldown": 100,
+   "minTime": 40,
+   "every": {
+    "period": 1.2,
+    "actions": [
+     {
+      "do": "doorChaos",
+      "count": 3
+     }
+    ]
+   }
+  },
+  {
+   "id": "last_minute",
+   "name": "DERNIÈRE MINUTE",
+   "category": "triggered",
+   "trigger": "quotaReached",
+   "desc": "La direction vient de relever le quota de 15 %. Désolé.",
+   "warn": null,
+   "duration": 0,
+   "weight": 1,
+   "chance": 0.35,
+   "cooldown": 9999,
+   "minTime": 0,
+   "conditions": {
+    "minTimeLeft": 150,
+    "notDeparting": true
+   },
+   "start": [
+    {
+     "do": "quotaMul",
+     "value": 1.15
+    }
+   ]
+  },
+  {
+   "id": "power_surge",
+   "name": "SURTENSION",
+   "category": "rare",
+   "desc": "Tout s'illumine d'un coup… vous voyez enfin ce qui vous entoure. Puis plus rien.",
+   "warn": null,
+   "duration": [
+    6,
+    6
+   ],
+   "weight": 0.6,
+   "cooldown": 300,
+   "minTime": 120,
+   "tags": [
+    "dark"
+   ],
+   "mods": {
+    "reveal": 1
+   },
+   "end": [
+    {
+     "do": "chain",
+     "event": "blackout"
+    }
+   ]
+  },
+  {
+   "id": "toxic_fog",
+   "name": "BRUME TOXIQUE",
+   "category": "tension",
+   "desc": "Une brume épaisse réduit la vision… des joueurs comme des créatures.",
+   "warn": {
+    "text": "Une odeur de chou bouilli envahit les lieux…",
+    "time": 3
+   },
+   "duration": [
+    20,
+    28
+   ],
+   "weight": 1.5,
+   "cooldown": 120,
+   "minTime": 70,
+   "tags": [
+    "dark"
+   ],
+   "mods": {
+    "sight": 0.5,
+    "flashlightRange": 0.6
+   }
+  },
+  {
+   "id": "coffee_break",
+   "name": "PAUSE CAFÉ DES MONSTRES",
+   "category": "exceptional",
+   "desc": "Syndicat des créatures : 10 secondes de pause réglementaire. Profitez-en.",
+   "warn": null,
+   "duration": [
+    10,
+    10
+   ],
+   "weight": 0.4,
+   "cooldown": 400,
+   "minTime": 150,
+   "conditions": {
+    "minTension": 0.55
+   },
+   "tags": [
+    "aggro"
+   ],
+   "mods": {
+    "monsterFreeze": 1
+   }
+  },
+  {
+   "id": "hazard_pay",
+   "name": "PRIME DE RISQUE",
+   "category": "exceptional",
+   "desc": "Pendant 40 s, tout objet chargé vaut 50 % de plus. Les créatures, elles, ont faim.",
+   "warn": null,
+   "duration": [
+    40,
+    40
+   ],
+   "weight": 0.5,
+   "cooldown": 400,
+   "minTime": 180,
+   "tags": [
+    "aggro"
+   ],
+   "mods": {
+    "valueMul": 1.5,
+    "monsterSpeed": 1.1
+   }
+  },
+  {
+   "id": "theft_alarm",
+   "name": "ALARME ANTIVOL",
+   "category": "triggered",
+   "trigger": "itemBroken",
+   "desc": "Vous avez cassé un objet de valeur. L'alarme antivol se déclenche.",
+   "warn": null,
+   "duration": [
+    6,
+    6
+   ],
+   "weight": 1,
+   "chance": 0.5,
+   "cooldown": 90,
+   "minTime": 20,
+   "conditions": {
+    "maxTension": 0.85
+   },
+   "tags": [
+    "alarm"
+   ],
+   "start": [
+    {
+     "do": "noise",
+     "at": "signal",
+     "loudness": 22,
+     "type": "siren"
+    }
+   ],
+   "every": {
+    "period": 2,
+    "actions": [
+     {
+      "do": "noise",
+      "at": "signal",
+      "loudness": 22,
+      "type": "siren"
+     }
+    ]
+   }
+  },
+  {
+   "id": "too_loud",
+   "name": "ILS VOUS ONT ENTENDUS",
+   "category": "triggered",
+   "trigger": "teamTooLoud",
+   "desc": "Tout ce bruit a réveillé quelque chose de plus.",
+   "warn": null,
+   "duration": 0,
+   "weight": 1,
+   "chance": 0.6,
+   "cooldown": 240,
+   "minTime": 60,
+   "start": [
+    {
+     "do": "wakeMonster"
+    }
+   ]
+  },
+  {
+   "id": "hotel_shift",
+   "name": "LES COULOIRS BOUGENT",
+   "category": "tension",
+   "desc": "L'hôtel se réorganise : des portes se verrouillent, d'autres s'ouvrent.",
+   "warn": {
+    "text": "Le bâtiment grince comme un vieux navire…",
+    "time": 3
+   },
+   "duration": 0,
+   "weight": 2.5,
+   "cooldown": 80,
+   "minTime": 45,
+   "conditions": {
+    "theme": "hotel"
+   },
+   "start": [
+    {
+     "do": "doorChaos",
+     "count": 12,
+     "silent": false
+    }
+   ]
+  }
+ ],
+ "EVENT_CATEGORIES": {
+  "humor": {
+   "name": "Humoristique",
+   "color": "#f1c40f"
+  },
+  "tension": {
+   "name": "Tension",
+   "color": "#e67e22"
+  },
+  "danger": {
+   "name": "Danger",
+   "color": "#e74c3c"
+  },
+  "rare": {
+   "name": "Rare",
+   "color": "#9b59b6"
+  },
+  "exceptional": {
+   "name": "Exceptionnel",
+   "color": "#1abc9c"
+  },
+  "triggered": {
+   "name": "Provoqué",
+   "color": "#e84393"
+  }
+ },
+ "MISSIONS": {
+  "morvan": {
+   "name": "Cambriolage à l'Entrepôt Morvan",
+   "theme": "warehouse",
+   "brief": "Le propriétaire est « injoignable depuis 1987 ». Récupérez tout ce qui a de la valeur.",
+   "quota": 1700,
+   "time": 540,
+   "monsterPool": [
+    "sourdine",
+    "inspecteur",
+    "demenageur",
+    "mannequine",
+    "echo",
+    "berger",
+    "sauveteur",
+    "invite"
+   ],
+   "required": [
+    "sourdine"
+   ],
+   "unlockLevel": 1
+  },
+  "bellevue": {
+   "name": "Check-out à l'Hôtel Bellevue-Mortel",
+   "theme": "hotel",
+   "brief": "Les clients ne sont jamais partis. Leurs valises non plus. Les portes changent d'avis.",
+   "quota": 1800,
+   "time": 540,
+   "monsterPool": [
+    "inspecteur",
+    "mannequine",
+    "invite",
+    "sauveteur",
+    "echo",
+    "berger",
+    "sourdine",
+    "demenageur"
+   ],
+   "required": [
+    "inspecteur"
+   ],
+   "unlockLevel": 2
+  },
+  "delta7": {
+   "name": "Inventaire au Labo Δ-7",
+   "theme": "lab",
+   "brief": "Le labo a fermé « suite à un incident ». Les bocaux, eux, sont toujours ouverts.",
+   "quota": 1800,
+   "time": 540,
+   "monsterPool": [
+    "echo",
+    "sourdine",
+    "berger",
+    "mannequine",
+    "demenageur",
+    "inspecteur",
+    "invite",
+    "sauveteur"
+   ],
+   "required": [
+    "echo"
+   ],
+   "unlockLevel": 3
+  }
+ },
+ "DIFFICULTIES": {
+  "stagiaire": {
+   "name": "Stagiaire",
+   "desc": "Pour découvrir. Monstres lents, quota bas, peu d'événements.",
+   "monsterBudget": 3,
+   "monsterSpeed": 0.85,
+   "perception": 0.8,
+   "quotaMul": 0.75,
+   "eventRate": 0.7,
+   "timeMul": 1.2,
+   "rewardMul": 0.8,
+   "level": 0,
+   "maxMonsters": 2
+  },
+  "employe": {
+   "name": "Employé",
+   "desc": "L'expérience prévue. Ça va crier.",
+   "monsterBudget": 5,
+   "monsterSpeed": 1,
+   "perception": 1,
+   "quotaMul": 1,
+   "eventRate": 1,
+   "timeMul": 1,
+   "rewardMul": 1,
+   "level": 1,
+   "maxMonsters": 3
+  },
+  "cadre": {
+   "name": "Cadre sup",
+   "desc": "Monstres affûtés, événements fréquents, quota exigeant.",
+   "monsterBudget": 7,
+   "monsterSpeed": 1.1,
+   "perception": 1.15,
+   "quotaMul": 1.25,
+   "eventRate": 1.3,
+   "timeMul": 0.95,
+   "rewardMul": 1.4,
+   "level": 2,
+   "maxMonsters": 4
+  },
+  "pdg": {
+   "name": "PDG (cauchemar)",
+   "desc": "Tout le monde est réveillé. Bonne chance.",
+   "monsterBudget": 10,
+   "monsterSpeed": 1.2,
+   "perception": 1.3,
+   "quotaMul": 1.5,
+   "eventRate": 1.6,
+   "timeMul": 0.9,
+   "rewardMul": 2,
+   "level": 3,
+   "maxMonsters": 5
+  }
+ },
+ "VARIANTS": [
+  {
+   "id": "standard",
+   "name": "Mission standard",
+   "desc": "",
+   "weight": 5
+  },
+  {
+   "id": "heavy",
+   "name": "Déménagement",
+   "desc": "Plus d'objets lourds, plus précieux.",
+   "weight": 2,
+   "lootMul": 1,
+   "heavyBias": true,
+   "quotaMul": 1.1
+  },
+  {
+   "id": "dark",
+   "name": "Coupure de courant",
+   "desc": "Lampes de plafond hors service. Batteries neuves.",
+   "weight": 2,
+   "noLamps": true
+  },
+  {
+   "id": "rush",
+   "name": "Livraison express",
+   "desc": "Moins de temps, quota réduit.",
+   "weight": 1,
+   "timeMul": 0.75,
+   "quotaMul": 0.85
+  },
+  {
+   "id": "loud",
+   "name": "Écho maximal",
+   "desc": "Les sons portent plus loin. Pour tout le monde.",
+   "weight": 1,
+   "noiseMul": 1.25
+  }
+ ],
+ "SIDE_OBJECTIVES": [
+  {
+   "id": "no_death",
+   "name": "Personne ne meurt",
+   "reward": 150
+  },
+  {
+   "id": "fragile3",
+   "name": "Extraire 3 objets fragiles intacts (>90 %)",
+   "reward": 120
+  },
+  {
+   "id": "big_haul",
+   "name": "Dépasser le quota de 50 %",
+   "reward": 200
+  },
+  {
+   "id": "quiet",
+   "name": "Discrétion : moins de 8 alertes de monstres",
+   "reward": 120
+  },
+  {
+   "id": "heavy2",
+   "name": "Extraire 2 objets très lourds",
+   "reward": 130
+  },
+  {
+   "id": "fast",
+   "name": "Partir avec plus de 2 minutes restantes",
+   "reward": 100
+  }
+ ],
+ "THEMES": {
+  "warehouse": {
+   "name": "Entrepôt Morvan",
+   "blurb": "Un complexe industriel abandonné. Grandes halles, étagères interminables, sol plein de verre.",
+   "layout": {
+    "cellsX": 6,
+    "cellsY": 5,
+    "cellSize": 9,
+    "mergeChance": 0.38,
+    "extraLinks": 0.35,
+    "doorChance": 0.55,
+    "wideChance": 0.35,
+    "corridorRows": []
+   },
+   "props": {
+    "shelfRows": 0.75,
+    "tables": 0.3,
+    "debris": 0.45,
+    "grates": 0.25,
+    "lockers": 0.5,
+    "lamps": 0.45
+   },
+   "loot": {
+    "vase": 1,
+    "radio_old": 2,
+    "tv": 2,
+    "safe": 1,
+    "crate": 4,
+    "toolbox": 3,
+    "statue": 1,
+    "clock": 1,
+    "bottle": 1,
+    "trophy": 1,
+    "servers": 1,
+    "gnome": 2,
+    "painting": 1,
+    "junk": 2
+   },
+   "lootCount": 38,
+   "palette": {
+    "floor": "#3a3d38",
+    "floor2": "#373a34",
+    "wall": "#5a5048",
+    "wallTop": "#7a6c5e",
+    "shelf": "#6b5233",
+    "table": "#4b4b55",
+    "debris": "#8a8f99",
+    "grate": "#4a5a60",
+    "fog": "8,10,12",
+    "accent": "#e8a33d"
+   }
+  },
+  "hotel": {
+   "name": "Hôtel Bellevue-Mortel",
+   "blurb": "Un hôtel délabré. Couloirs moquettés, chambres en enfilade et portes qui n'en font qu'à leur tête.",
+   "layout": {
+    "cellsX": 7,
+    "cellsY": 5,
+    "cellSize": 7,
+    "mergeChance": 0.08,
+    "extraLinks": 0.2,
+    "doorChance": 0.9,
+    "wideChance": 0.05,
+    "corridorRows": [
+     2
+    ]
+   },
+   "props": {
+    "shelfRows": 0.25,
+    "tables": 0.75,
+    "debris": 0.15,
+    "grates": 0,
+    "lockers": 0.8,
+    "lamps": 0.6
+   },
+   "loot": {
+    "vase": 2,
+    "lamp": 3,
+    "painting": 3,
+    "clock": 2,
+    "chandelier": 1,
+    "piano": 1,
+    "suitcase": 3,
+    "bottle": 2,
+    "statue": 1,
+    "trophy": 1,
+    "gnome": 1,
+    "junk": 2
+   },
+   "lootCount": 38,
+   "shiftingDoors": true,
+   "palette": {
+    "floor": "#4a2328",
+    "floor2": "#462229",
+    "wall": "#6b5a44",
+    "wallTop": "#a48a62",
+    "shelf": "#4a2e1c",
+    "table": "#5e3b22",
+    "debris": "#b0a080",
+    "grate": "#555",
+    "fog": "12,6,8",
+    "accent": "#d4af37"
+   }
+  },
+  "lab": {
+   "name": "Laboratoire Souterrain Δ-7",
+   "blurb": "Un laboratoire enterré. Sas, grilles métalliques bruyantes, bocaux qui vous regardent.",
+   "layout": {
+    "cellsX": 6,
+    "cellsY": 5,
+    "cellSize": 8,
+    "mergeChance": 0.15,
+    "extraLinks": 0.4,
+    "doorChance": 0.8,
+    "wideChance": 0.1,
+    "corridorRows": []
+   },
+   "props": {
+    "shelfRows": 0.45,
+    "tables": 0.6,
+    "debris": 0.2,
+    "grates": 0.55,
+    "lockers": 0.55,
+    "lamps": 0.5
+   },
+   "loot": {
+    "jar": 4,
+    "microscope": 3,
+    "servers": 2,
+    "safe": 1,
+    "toolbox": 2,
+    "crate": 2,
+    "bottle": 1,
+    "radio_old": 1,
+    "tv": 1,
+    "junk": 3
+   },
+   "lootCount": 38,
+   "palette": {
+    "floor": "#2b3436",
+    "floor2": "#283134",
+    "wall": "#46545a",
+    "wallTop": "#6f8890",
+    "shelf": "#4f5d63",
+    "table": "#59666b",
+    "debris": "#9fb0b0",
+    "grate": "#556a70",
+    "fog": "4,10,10",
+    "accent": "#58e0c0"
+   }
+  }
+ },
+ "BOT_PROFILES": {
+  "prudent": {
+   "name": "Le Prudent",
+   "names": [
+    "Gérard",
+    "Odile",
+    "Bernard"
+   ],
+   "caution": 0.9,
+   "bravery": 0.25,
+   "greed": 0.35,
+   "panic": 0.3,
+   "loyalty": 0.6,
+   "clumsy": 0.1,
+   "talk": 0.6,
+   "suit": "#4a7bd0"
+  },
+  "courageux": {
+   "name": "Le Courageux",
+   "names": [
+    "Kévin",
+    "Jessica",
+    "Max"
+   ],
+   "caution": 0.25,
+   "bravery": 0.9,
+   "greed": 0.55,
+   "panic": 0.15,
+   "loyalty": 0.7,
+   "clumsy": 0.2,
+   "talk": 0.7,
+   "suit": "#d04a4a"
+  },
+  "panique": {
+   "name": "Le Paniqué",
+   "names": [
+    "Thierry",
+    "Sabine",
+    "Léo"
+   ],
+   "caution": 0.6,
+   "bravery": 0.1,
+   "greed": 0.4,
+   "panic": 0.95,
+   "loyalty": 0.4,
+   "clumsy": 0.45,
+   "talk": 1,
+   "suit": "#e0c040"
+  },
+  "cupide": {
+   "name": "Le Cupide",
+   "names": [
+    "Rémi",
+    "Nadège",
+    "Hugo"
+   ],
+   "caution": 0.3,
+   "bravery": 0.55,
+   "greed": 1,
+   "panic": 0.35,
+   "loyalty": 0.2,
+   "clumsy": 0.25,
+   "talk": 0.7,
+   "suit": "#40b060"
+  },
+  "protecteur": {
+   "name": "Le Protecteur",
+   "names": [
+    "Fatou",
+    "Yannick",
+    "Inès"
+   ],
+   "caution": 0.5,
+   "bravery": 0.7,
+   "greed": 0.3,
+   "panic": 0.2,
+   "loyalty": 1,
+   "clumsy": 0.15,
+   "talk": 0.7,
+   "suit": "#8e5bd0"
+  },
+  "comique": {
+   "name": "Le Comique involontaire",
+   "names": [
+    "Jean-Mi",
+    "Brigitte",
+    "Pascal"
+   ],
+   "caution": 0.45,
+   "bravery": 0.5,
+   "greed": 0.6,
+   "panic": 0.55,
+   "loyalty": 0.5,
+   "clumsy": 0.85,
+   "talk": 0.9,
+   "suit": "#e07a30"
+  }
+ },
+ "LINES": {
+  "spot_monster": {
+   "all": [
+    "Y a un truc là-bas.",
+    "Euh… c'est quoi, ça ?",
+    "{monster} ! {monster} !",
+    "Ne bougez pas. Ou bougez. Je sais plus.",
+    "J'ai vu quelque chose. Je préfère ne pas en parler."
+   ],
+   "prudent": [
+    "On recule doucement. Doucement.",
+    "Je l'avais dit qu'il fallait rester au fourgon."
+   ],
+   "courageux": [
+    "Je m'en occupe ! …Comment on s'en occupe ?",
+    "Approche, si t'es un monstre !"
+   ],
+   "panique": [
+    "AAAAAAH !",
+    "NON NON NON NON",
+    "C'EST LUI ! ENFIN ELLE ! ENFIN ÇA !",
+    "Je veux rentrer chez ma mère !"
+   ],
+   "cupide": [
+    "Il est entre moi et le butin. Inacceptable.",
+    "Il vaut combien, lui ?"
+   ],
+   "protecteur": [
+    "Restez derrière moi !",
+    "Tout le monde va bien ? Comptez-vous !"
+   ],
+   "comique": [
+    "Bonjour monsieur ! …Il répond pas.",
+    "C'est le stagiaire de l'autre équipe ?"
+   ]
+  },
+  "flee": {
+   "all": [
+    "Je me casse !",
+    "Courez !",
+    "Chacun pour soi !",
+    "Je reviens ! (Je reviens pas.)"
+   ],
+   "panique": [
+    "IL ME SUIT ! IL ME SUIT !",
+    "Pourquoi c'est toujours moi ?!",
+    "Je cours dans quelle direction ? N'IMPORTE LAQUELLE !"
+   ],
+   "cupide": [
+    "Je garde l'objet ! Je garde l'objet !"
+   ],
+   "courageux": [
+    "Repli stratégique ! C'est pas pareil que fuir !"
+   ]
+  },
+  "pickup": {
+   "all": [
+    "J'ai un {item} !",
+    "Oh, {item}. Joli.",
+    "Je prends ça.",
+    "Ça, ça vaut au moins {value}."
+   ],
+   "cupide": [
+    "À MOI LE {item} !",
+    "Ça, c'est ma prime.",
+    "Chaque crédit compte. Surtout les miens."
+   ],
+   "comique": [
+    "C'est lourd, un {item}. Personne ne m'avait prévenu.",
+    "J'ai trouvé un {item}. Ou c'est lui qui m'a trouvé."
+   ],
+   "prudent": [
+    "Je prends le {item} et je rentre."
+   ]
+  },
+  "deliver": {
+   "all": [
+    "Livré !",
+    "Un de plus dans le fourgon.",
+    "Et de un ! Enfin, et de plusieurs.",
+    "Ka-ching."
+   ],
+   "cupide": [
+    "Mon chiffre d'affaires explose.",
+    "Combien on en est ? Pas assez !"
+   ]
+  },
+  "drop_scared": {
+   "all": [
+    "J'ai lâché le truc !",
+    "Oups. Il est tombé.",
+    "Mes mains ont paniqué avant moi."
+   ],
+   "comique": [
+    "Il m'a glissé des doigts… comme ma carrière.",
+    "Ça va, c'était sûrement pas fragile."
+   ]
+  },
+  "teammate_down": {
+   "all": [
+    "{name} est à terre !",
+    "On a perdu {name} ! Enfin, presque.",
+    "{name} ?! Tiens bon !"
+   ],
+   "protecteur": [
+    "J'arrive, {name} ! Personne ne reste derrière !"
+   ],
+   "cupide": [
+    "Paix à son âme. Je prends son butin ?"
+   ],
+   "panique": [
+    "ON VA TOUS Y PASSER !"
+   ]
+  },
+  "reviving": {
+   "all": [
+    "Debout, {name} ! On a du travail.",
+    "Allez, allez, allez…",
+    "Je te relève, ne bouge pas."
+   ],
+   "protecteur": [
+    "Je suis là. Respire."
+   ]
+  },
+  "revived": {
+   "all": [
+    "Merci, je te dois un café.",
+    "J'ai vu une lumière blanche. C'était ta lampe."
+   ]
+  },
+  "hurt": {
+   "all": [
+    "Aïe !",
+    "Ça fait mal !",
+    "Il m'a eu !",
+    "Ouch. C'est couvert par la mutuelle ?"
+   ]
+  },
+  "idle": {
+   "all": [
+    "C'est calme. Trop calme.",
+    "Quelqu'un a entendu ça ?",
+    "Vous saviez que cet endroit est classé « déconseillé » ?",
+    "J'ai faim.",
+    "Je déteste cet endroit.",
+    "On fait une pause ? Non ? D'accord."
+   ],
+   "comique": [
+    "Si je meurs, dites à mon chat que c'était pour lui.",
+    "J'ai oublié pourquoi je suis entré dans cette pièce.",
+    "Hé, j'ai trouvé un bouton ! …Il fait rien.",
+    "Qui a pété ?"
+   ],
+   "prudent": [
+    "On devrait rester groupés.",
+    "J'aime pas cette porte."
+   ],
+   "panique": [
+    "J'entends des voix. C'est vous ? C'EST VOUS ?",
+    "Je respire. Je respire. Je respire."
+   ],
+   "cupide": [
+    "Ça sent l'argent par ici.",
+    "Je flaire un coffre-fort."
+   ]
+  },
+  "wrong_info": {
+   "all": [
+    "Le fourgon c'est par {dir} ! Je crois.",
+    "J'ai vu un truc précieux à {dir} ! Ou un monstre. Un des deux.",
+    "Tout est clair par {dir} !"
+   ]
+  },
+  "quota": {
+   "all": [
+    "Quota atteint ! On rentre ?",
+    "C'est bon, on a le quota !",
+    "Bon, on y va ou on est cupides ?"
+   ],
+   "cupide": [
+    "Le quota c'est le minimum. Moi je vise le maximum."
+   ],
+   "prudent": [
+    "ON. RENTRE. MAINTENANT."
+   ]
+  },
+  "departure": {
+   "all": [
+    "LE FOURGON PART !",
+    "Attendez-moi !",
+    "Courez au fourgon !",
+    "Démarre pas sans moi !"
+   ]
+  },
+  "inspector_stop": {
+   "all": [
+    "Je bouge pas, je bouge pas…",
+    "Bonjour monsieur l'inspecteur.",
+    "Tout est en règle, promis."
+   ],
+   "panique": [
+    "NON ! Je panique ! Je cours !"
+   ],
+   "cupide": [
+    "Il aura pas mon butin. Jamais."
+   ]
+  },
+  "event": {
+   "all": [
+    "C'est quoi ce délire ?",
+    "Évidemment. ÉVIDEMMENT.",
+    "Qui a touché à quelque chose ?",
+    "Ça arrive souvent, ça ?"
+   ],
+   "comique": [
+    "C'est moi. J'ai appuyé sur un truc."
+   ]
+  },
+  "hide": {
+   "all": [
+    "Je me planque.",
+    "Je suis un casier. Je suis un casier.",
+    "Personne ne me voit."
+   ]
+  },
+  "follow_rescuer": {
+   "all": [
+    "Un sauveteur ! On est sauvés !",
+    "Je le suis, il a l'air sympa."
+   ]
+  },
+  "mimic_hint": {
+   "all": [
+    "Attends… {name} est pas censé être avec moi ?",
+    "Pourquoi {name} a pas de lampe ?"
+   ]
+  }
+ },
+ "MIMIC_LINES": [
+  "P-p-par ici !",
+  "J'ai… j'ai un… objet…",
+  "Venez vvvoir…",
+  "C'est c-calme. Trop c-calme.",
+  "Au s-s-secours…",
+  "Le fourgon est par ici-ici-ici."
+ ],
+ "RESCUER_LINES": [
+  "Par ici ! La sortie de secours est par là !",
+  "Suivez-moi, je connais un raccourci !",
+  "Restez près de moi, vous êtes en sécurité.",
+  "Plus vite ! C'est juste derrière cette porte !",
+  "Faites-moi confiance. Je suis secouriste."
+ ],
+ "COSMETICS": {
+  "suit": [
+   {
+    "id": "orange",
+    "name": "Combinaison réglementaire",
+    "color": "#e67e22",
+    "price": 0
+   },
+   {
+    "id": "blue",
+    "name": "Bleu de travail",
+    "color": "#3a7bd5",
+    "price": 0
+   },
+   {
+    "id": "green",
+    "name": "Vert sapin",
+    "color": "#2e9d5b",
+    "price": 0
+   },
+   {
+    "id": "red",
+    "name": "Rouge alerte",
+    "color": "#cf3a3a",
+    "price": 0
+   },
+   {
+    "id": "purple",
+    "name": "Violet cadre",
+    "color": "#8e44ad",
+    "price": 120
+   },
+   {
+    "id": "pink",
+    "name": "Rose bonbon",
+    "color": "#ff7eb6",
+    "price": 120
+   },
+   {
+    "id": "white",
+    "name": "Blanc laboratoire",
+    "color": "#e8e8e8",
+    "price": 180
+   },
+   {
+    "id": "black",
+    "name": "Noir ninja (pas plus discret)",
+    "color": "#26262b",
+    "price": 250
+   },
+   {
+    "id": "gold",
+    "name": "Or massif",
+    "color": "#e8c547",
+    "price": 0,
+    "achievement": "golden_gnome"
+   },
+   {
+    "id": "camo",
+    "name": "Camouflage douteux",
+    "color": "#6b7d3a",
+    "price": 200,
+    "level": 4
+   }
+  ],
+  "mask": [
+   {
+    "id": "visor",
+    "name": "Visière standard",
+    "price": 0
+   },
+   {
+    "id": "goggles",
+    "name": "Lunettes de soudeur",
+    "price": 0
+   },
+   {
+    "id": "smile",
+    "name": "Masque sourire",
+    "price": 150
+   },
+   {
+    "id": "gas",
+    "name": "Masque à gaz",
+    "price": 200
+   },
+   {
+    "id": "paper",
+    "name": "Sac en papier",
+    "price": 80
+   },
+   {
+    "id": "hockey",
+    "name": "Masque de gardien",
+    "price": 220,
+    "level": 3
+   },
+   {
+    "id": "cyclops",
+    "name": "Mono-lentille",
+    "price": 260,
+    "level": 5
+   }
+  ],
+  "hat": [
+   {
+    "id": "none",
+    "name": "Aucun",
+    "price": 0
+   },
+   {
+    "id": "helmet",
+    "name": "Casque de chantier",
+    "price": 0
+   },
+   {
+    "id": "beanie",
+    "name": "Bonnet",
+    "price": 60
+   },
+   {
+    "id": "cap",
+    "name": "Casquette",
+    "price": 60
+   },
+   {
+    "id": "crown",
+    "name": "Couronne en carton",
+    "price": 300,
+    "level": 3
+   },
+   {
+    "id": "antenna",
+    "name": "Antenne",
+    "price": 140
+   },
+   {
+    "id": "chef",
+    "name": "Toque",
+    "price": 160
+   },
+   {
+    "id": "party",
+    "name": "Chapeau de fête",
+    "price": 0,
+    "achievement": "confetti"
+   }
+  ],
+  "light": [
+   {
+    "id": "warm",
+    "name": "Faisceau chaud",
+    "color": "255,230,170",
+    "price": 0
+   },
+   {
+    "id": "cold",
+    "name": "Faisceau froid",
+    "color": "200,225,255",
+    "price": 100
+   },
+   {
+    "id": "pink",
+    "name": "Faisceau disco",
+    "color": "255,170,220",
+    "price": 180
+   },
+   {
+    "id": "green",
+    "name": "Faisceau radioactif",
+    "color": "180,255,170",
+    "price": 220,
+    "level": 4
+   }
+  ],
+  "emote": [
+   {
+    "id": "wave",
+    "name": "Coucou",
+    "price": 0,
+    "text": "👋"
+   },
+   {
+    "id": "panic",
+    "name": "Panique",
+    "price": 0,
+    "text": "😱"
+   },
+   {
+    "id": "thumb",
+    "name": "Pouce",
+    "price": 0,
+    "text": "👍"
+   },
+   {
+    "id": "shh",
+    "name": "Chut",
+    "price": 0,
+    "text": "🤫"
+   },
+   {
+    "id": "dance",
+    "name": "Danse de la victoire",
+    "price": 120,
+    "text": "💃"
+   },
+   {
+    "id": "skull",
+    "name": "C'est fini",
+    "price": 90,
+    "text": "💀"
+   },
+   {
+    "id": "money",
+    "name": "Kaching",
+    "price": 150,
+    "text": "💰"
+   },
+   {
+    "id": "clown",
+    "name": "Clown",
+    "price": 200,
+    "level": 3,
+    "text": "🤡"
+   }
+  ],
+  "title": [
+   {
+    "id": "intern",
+    "name": "Stagiaire",
+    "price": 0
+   },
+   {
+    "id": "mover",
+    "name": "Déménageur du dimanche",
+    "price": 0,
+    "level": 2
+   },
+   {
+    "id": "coward",
+    "name": "Lâche professionnel",
+    "price": 0,
+    "achievement": "abandon"
+   },
+   {
+    "id": "hero",
+    "name": "Héros du quotidien",
+    "price": 0,
+    "achievement": "revive5"
+   },
+   {
+    "id": "rich",
+    "name": "Employé du mois",
+    "price": 0,
+    "achievement": "rich"
+   },
+   {
+    "id": "loud",
+    "name": "Mégaphone humain",
+    "price": 0,
+    "achievement": "loudest"
+   },
+   {
+    "id": "ghost",
+    "name": "Fantôme bavard",
+    "price": 0,
+    "achievement": "ghost"
+   },
+   {
+    "id": "ceo",
+    "name": "Futur PDG",
+    "price": 0,
+    "level": 8
+   }
+  ]
+ },
+ "DEFAULT_COSMETICS": {
+  "suit": "orange",
+  "mask": "visor",
+  "hat": "helmet",
+  "light": "warm",
+  "emotes": [
+   "wave",
+   "panic",
+   "thumb",
+   "shh"
+  ],
+  "title": "intern"
+ },
+ "EQUIPMENT": {
+  "radio": {
+   "name": "Talkie-walkie",
+   "desc": "Parlez à distance (touche « Radio »). Grésille chez ceux qui vous reçoivent : les monstres l'entendent aussi.",
+   "unlockLevel": 1,
+   "price": 0,
+   "charges": null,
+   "battery": 1
+  },
+  "decoy": {
+   "name": "Leurre sonore ×2",
+   "desc": "Lancez-le (touche « Objet ») : il sonne 3 s après l'impact et attire les créatures.",
+   "unlockLevel": 1,
+   "price": 0,
+   "charges": 2
+  },
+  "sneakers": {
+   "name": "Baskets en mousse",
+   "desc": "Vos pas font 40 % de bruit en moins. Vous glissez un peu plus.",
+   "unlockLevel": 2,
+   "price": 150,
+   "charges": null
+  },
+  "medkit": {
+   "name": "Trousse de secours",
+   "desc": "Réanimation 2× plus rapide. Une fois par mission : soigne 1 PV (touche « Objet »).",
+   "unlockLevel": 3,
+   "price": 250,
+   "charges": 1
+  },
+  "bigLight": {
+   "name": "Projecteur de chantier",
+   "desc": "Faisceau plus large et plus long, mais la batterie fond deux fois plus vite.",
+   "unlockLevel": 4,
+   "price": 300,
+   "charges": null
+  },
+  "flare": {
+   "name": "Fusée éclairante",
+   "desc": "Lancez-la (touche « Objet ») : éclaire une zone 12 s. Fige la Mannequine… et réveille la Sourdine (elle crépite).",
+   "unlockLevel": 5,
+   "price": 350,
+   "charges": 1
+  }
+ }
+}

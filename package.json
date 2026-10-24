@@ -14,13 +14,13 @@
     "icons": "python3 scripts/make_icons.py",
     "build:web": "node scripts/build-web.mjs",
     "android:sync": "node scripts/build-web.mjs && npx cap sync android",
-    "android:apk": "npm run android:sync && cd android && ./gradlew assembleDebug"
+    "android:apk": "npm run android:sync && cd android && ./gradlew assembleDebug",
+    "godot:data": "node scripts/export-godot-data.mjs"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
-    "three": "0.170.0",
     "ws": "^8.18.0"
   },
   "optionalDependencies": {

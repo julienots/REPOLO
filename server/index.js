@@ -35,11 +35,9 @@ function serveStatic(req, res) {
   if (p === '/api/ice') return json(res, { iceServers: iceServers() });
   if (p === '/api/info') return json(res, { game: GAME.name, version: GAME.version, protocol: GAME.protocol, online: true, maxPlayers: MAX_PLAYERS });
   if (p === '/') p = '/client/index.html';
-  // bibliothèque 3D (Three.js) servie depuis node_modules : seulement build/ et examples/jsm/
-  else if (p.startsWith('/vendor/three/')) p = '/node_modules/three/' + p.slice('/vendor/three/'.length);
   else if (!p.startsWith('/client/') && !p.startsWith('/shared/')) p = '/client' + p;
   const file = path.normalize(path.join(ROOT, p));
-  const allowed = [path.join(ROOT, 'client'), path.join(ROOT, 'shared'), path.join(ROOT, 'node_modules', 'three', 'build'), path.join(ROOT, 'node_modules', 'three', 'examples', 'jsm')];
+  const allowed = [path.join(ROOT, 'client'), path.join(ROOT, 'shared')];
   if (!allowed.some((dir) => file.startsWith(dir + path.sep))) { res.writeHead(403); return res.end('Interdit'); }
   fs.stat(file, (err, st) => {
     if (err || !st.isFile()) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end('Introuvable'); }
