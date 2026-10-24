@@ -63,16 +63,16 @@ func _label(text: String, size: int, col := Color(0.92, 0.9, 0.85)) -> Label:
 
 
 func build(mobile: bool) -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	font_size = 20 if mobile else 18
 	# voile du casier : fentes d'aération
 	locker_overlay = Control.new()
-	locker_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	locker_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	locker_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(locker_overlay)
 	var slots = VBoxContainer.new()
-	slots.set_anchors_preset(Control.PRESET_FULL_RECT)
+	slots.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	slots.add_theme_constant_override("separation", 0)
 	locker_overlay.add_child(slots)
 	for i in 12:
@@ -83,7 +83,7 @@ func build(mobile: bool) -> void:
 		slots.add_child(bar)
 	locker_overlay.visible = false
 	vignette_red = ColorRect.new()
-	vignette_red.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vignette_red.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	vignette_red.color = Color(0.6, 0, 0, 0)
 	vignette_red.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(vignette_red)

@@ -192,7 +192,7 @@ func _build_ui() -> void:
 	ui_layer = CanvasLayer.new()
 	add_child(ui_layer)
 	var post = ColorRect.new()
-	post.set_anchors_preset(Control.PRESET_FULL_RECT)
+	post.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	post.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	post_mat = ShaderMaterial.new()
 	post_mat.shader = preload("res://shaders/post.gdshader")
@@ -217,13 +217,14 @@ func _build_ui() -> void:
 func _make_pause() -> Control:
 	var root = ColorRect.new()
 	root.color = Color(0, 0, 0, 0.7)
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var center = CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	root.add_child(center)
 	var box = VBoxContainer.new()
-	box.set_anchors_preset(Control.PRESET_CENTER)
-	box.position = Vector2(-160, -120)
 	box.custom_minimum_size = Vector2(320, 240)
 	box.add_theme_constant_override("separation", 14)
-	root.add_child(box)
+	center.add_child(box)
 	var title = Label.new()
 	title.text = "PAUSE"
 	title.add_theme_font_size_override("font_size", 34)

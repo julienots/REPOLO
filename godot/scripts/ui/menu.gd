@@ -20,9 +20,9 @@ var lobby_chat_edit: LineEdit
 func _ready() -> void:
 	mobile = OS.has_feature("mobile")
 	theme = UiTheme.make(mobile)
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var shade = ColorRect.new()
-	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	shade.color = Color(0, 0, 0, 0.35)
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(shade)
