@@ -37,6 +37,22 @@ version 2D, mais vue à la première personne, avec une lampe torche qui projett
 Menu « Multijoueur en ligne » : saisir l'adresse du serveur du jeu (par exemple `192.168.1.20:8080` quand le serveur est
 lancé avec `npm start` sur un PC du même Wi-Fi), puis créer un salon ou rejoindre avec un code.
 
+## Les Récupérateurs (personnages)
+
+Les employés de Récup'Express (joueurs et bots) sont des **Récupérateurs** : un personnage original tout rond —
+corps-galet, lunettes doubles réglementaires, lampe frontale, hotte de récup dans le dos, petits bras à moufles.
+Tous les cosmétiques (10 combinaisons, 7 masques, 8 chapeaux, 4 faisceaux) sont adaptés à cette forme.
+Animation procédurale : démarche dandinée avec rebond à chaque pas, course penchée, accroupi écrasé, porté d'objet
+à deux moufles, tremblements quand il panique, à plat ventre quand il est à terre, fantôme flottant après la mort.
+La version web (vue de dessus) reprend la même silhouette. Maquette de référence : `docs/maquette-recuperateurs.html`.
+
+## Démarrage
+
+1. Intro **SuperEssence. STUDIO** (≈ 2,4 s, logo officiel dans `godot/assets/studio` et `client/assets/studio`) ;
+   un toucher la passe seulement après un premier visionnage complet ; « Réduire les animations » donne un simple fondu.
+2. Écran de chargement du jeu : emblème du Récupérateur, barre reliée à la vraie construction du décor du menu,
+   phrases du lore, bouton « Toucher pour jouer ».
+
 ## Rendu
 
 - Rendu « Compatibilité » (OpenGL ES 3) pour tourner sur des téléphones modestes.

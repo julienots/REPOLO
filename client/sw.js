@@ -1,6 +1,6 @@
 // Service worker : le jeu reste jouable hors ligne (mode solo) une fois chargé.
 // Stratégie « réseau d'abord, cache en secours » : les mises à jour arrivent toujours.
-const CACHE = 'op-panique-v1';
+const CACHE = 'op-panique-v2';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => {

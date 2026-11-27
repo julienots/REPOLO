@@ -286,3 +286,4 @@ class App {
 }
 
 window.app = new App();
+if (window.__bootStep) window.__bootStep('script');

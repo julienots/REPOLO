@@ -43,6 +43,8 @@ export function drawCharacter(ctx, x, y, S, angle, cos = {}, opts = {}) {
   shadow(ctx, 0, r * 0.4, r * 1.05);
   const bob = opts.moving ? Math.sin(t * 14) * r * 0.06 : 0;
   ctx.translate(0, bob);
+  // démarche dandinée du Récupérateur : léger roulis du corps à chaque pas
+  if (opts.moving) ctx.rotate(Math.sin(t * 7) * 0.12);
   // sac à dos
   const bx = -Math.cos(angle) * r * 0.75, by = -Math.sin(angle) * r * 0.75;
   ctx.fillStyle = shade(suit, -60);
@@ -53,15 +55,21 @@ export function drawCharacter(ctx, x, y, S, angle, cos = {}, opts = {}) {
   for (const side of [-1, 1]) {
     const reach = opts.carrying ? 0.95 : 0.55 + side * swing * 0.4;
     const ax = ca * r * reach - sa * side * r * 0.85, ay = sa * r * reach + ca * side * r * 0.85;
-    circle(ctx, ax, ay, r * 0.28, shade(suit, -20));
+    circle(ctx, ax, ay, r * 0.3, '#1b1f24', '#000', 1); // moufles
   }
-  // corps
-  circle(ctx, 0, 0, r, suit, shade(suit, -70), Math.max(1, S * 0.03));
+  // corps-galet (un peu plus long d'avant en arrière), contour épais deux tons
+  ctx.save(); ctx.rotate(angle);
+  ctx.fillStyle = suit; ctx.strokeStyle = '#111'; ctx.lineWidth = Math.max(1.5, S * 0.04);
+  ctx.beginPath(); ctx.ellipse(0, 0, r * 1.05, r * 0.95, 0, 0, TAU); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = 'rgba(0,0,0,0.18)';
+  ctx.beginPath(); ctx.ellipse(-r * 0.15, r * 0.2, r * 0.8, r * 0.6, 0, 0, TAU); ctx.fill();
+  ctx.restore();
   // bande réfléchissante
   ctx.strokeStyle = 'rgba(230,230,200,0.5)'; ctx.lineWidth = r * 0.16;
   ctx.beginPath(); ctx.arc(0, 0, r * 0.68, angle + 1.2, angle + Math.PI * 2 - 1.2); ctx.stroke();
   drawMask(ctx, cos.mask, r, angle);
   drawHat(ctx, cos.hat, r, angle, suit);
+  if (cos.mask !== 'paper') circle(ctx, ca * r * 0.32, sa * r * 0.32, r * 0.1, '#ffe6a8', '#2f353c', Math.max(1, r * 0.06)); // lampe frontale
   ctx.restore();
 }
 
@@ -71,7 +79,7 @@ function drawMask(ctx, mask, r, a) {
   ctx.save(); ctx.translate(fx, fy); ctx.rotate(a);
   switch (mask) {
     case 'goggles':
-      circle(ctx, 0, -r * 0.24, r * 0.2, '#ffcf6b', '#222', 2); circle(ctx, 0, r * 0.24, r * 0.2, '#ffcf6b', '#222', 2); break;
+      circle(ctx, 0, -r * 0.26, r * 0.24, '#28402c', '#b8682f', Math.max(2, r * 0.1)); circle(ctx, 0, r * 0.26, r * 0.24, '#28402c', '#b8682f', Math.max(2, r * 0.1)); break;
     case 'smile':
       circle(ctx, 0, 0, r * 0.42, '#f4efe4', '#999', 1);
       ctx.strokeStyle = '#222'; ctx.lineWidth = r * 0.07; ctx.beginPath(); ctx.arc(-r * 0.05, 0, r * 0.25, -1.1, 1.1); ctx.stroke(); break;
@@ -87,9 +95,13 @@ function drawMask(ctx, mask, r, a) {
     case 'cyclops':
       circle(ctx, 0, 0, r * 0.36, '#333'); circle(ctx, r * 0.05, 0, r * 0.22, '#ff4a3d'); circle(ctx, r * 0.1, -r * 0.06, r * 0.06, '#fff'); break;
     default:
-      ctx.fillStyle = '#7fc4ff'; ctx.strokeStyle = '#123'; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.ellipse(0, 0, r * 0.22, r * 0.5, 0, 0, TAU); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.beginPath(); ctx.ellipse(r * 0.04, -r * 0.2, r * 0.06, r * 0.15, 0, 0, TAU); ctx.fill();
+      // lunettes doubles réglementaires Récup'Express (sangle + deux verres couleur lampe)
+      ctx.fillStyle = '#1b1f24'; ctx.fillRect(-r * 0.12, -r * 0.62, r * 0.14, r * 1.24);
+      for (const oy of [-0.27, 0.27]) {
+        circle(ctx, 0, r * oy, r * 0.25, '#1b1f24');
+        circle(ctx, r * 0.02, r * oy, r * 0.16, '#ffe6a8');
+        circle(ctx, r * 0.07, r * (oy - 0.06), r * 0.05, '#fff');
+      }
   }
   ctx.restore();
 }
@@ -98,7 +110,7 @@ function drawHat(ctx, hat, r, a, suit) {
   const ca = Math.cos(a), sa = Math.sin(a);
   switch (hat) {
     case 'helmet':
-      circle(ctx, -ca * r * 0.1, -sa * r * 0.1, r * 0.62, '#f1c40f', '#a8860a', 2);
+      circle(ctx, -ca * r * 0.28, -sa * r * 0.28, r * 0.5, '#f1c40f', '#a8860a', 2);
       circle(ctx, ca * r * 0.25, sa * r * 0.25, r * 0.12, '#fff7c2'); break;
     case 'beanie':
       circle(ctx, -ca * r * 0.1, -sa * r * 0.1, r * 0.55, shade(suit, -40)); circle(ctx, -ca * r * 0.1, -sa * r * 0.1, r * 0.18, '#eee'); break;
