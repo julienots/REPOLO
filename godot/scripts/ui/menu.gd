@@ -26,19 +26,25 @@ func _ready() -> void:
 	shade.color = Color(0, 0, 0, 0.35)
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(shade)
-	var head = VBoxContainer.new()
-	head.position = Vector2(40, 30)
-	add_child(head)
-	head.add_child(UiTheme.title("OPÉRATION PANIQUE", 54 if not mobile else 46))
-	head.add_child(UiTheme.label("Version 3D — " + Data.db.GAME.tagline, 18, Color(0.85, 0.8, 0.75)))
+	# colonne de gauche : titre, profil, puis le panneau (qui prend la hauteur restante)
+	var vp = get_viewport_rect().size
+	var col = VBoxContainer.new()
+	col.position = Vector2(40, 20)
+	col.add_theme_constant_override("separation", 4)
+	add_child(col)
+	col.add_child(UiTheme.title("OPÉRATION PANIQUE", 54 if not mobile else 46))
+	col.add_child(UiTheme.label("Version 3D — " + Data.db.GAME.tagline, 18, Color(0.85, 0.8, 0.75)))
 	profile_label = UiTheme.label("", 16, Color(0.75, 0.85, 0.95))
-	head.add_child(profile_label)
+	col.add_child(profile_label)
+	var gap = Control.new()
+	gap.custom_minimum_size = Vector2(0, 6)
+	col.add_child(gap)
 	panel = PanelContainer.new()
-	panel.position = Vector2(40, 190 if not mobile else 170)
 	panel.custom_minimum_size = Vector2(520, 0)
-	add_child(panel)
+	col.add_child(panel)
+	_build_preview(vp)
 	var scroll = ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(520, 440 if not mobile else 400)
+	scroll.custom_minimum_size = Vector2(520, clampf(vp.y - 210.0, 240.0, 560.0))
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	panel.add_child(scroll)
 	content = VBoxContainer.new()
@@ -51,6 +57,80 @@ func _ready() -> void:
 	show_main()
 
 
+# Aperçu 3D du Récupérateur (écran de personnalisation) : un petit studio dans son propre
+# monde 3D, le personnage tourne lentement sur lui-même.
+var preview: SubViewportContainer
+var preview_vp: SubViewport
+var preview_view: PlayerView
+var preview_t = 0.0
+
+
+func _build_preview(vp: Vector2) -> void:
+	preview = SubViewportContainer.new()
+	preview.stretch = true
+	var w = clampf(vp.x - 620.0, 260.0, 520.0)
+	preview.size = Vector2(w, minf(vp.y - 80.0, w * 1.15))
+	preview.position = Vector2(vp.x - w - 40.0, (vp.y - preview.size.y) / 2.0)
+	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	preview.visible = false
+	add_child(preview)
+	preview_vp = SubViewport.new()
+	preview_vp.own_world_3d = true
+	preview_vp.transparent_bg = true
+	preview_vp.msaa_3d = Viewport.MSAA_2X
+	preview.add_child(preview_vp)
+	var env = Environment.new()
+	env.background_mode = Environment.BG_CLEAR_COLOR
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.ambient_light_color = Color(0.55, 0.5, 0.45)
+	env.ambient_light_energy = 0.7
+	env.tonemap_mode = Environment.TONE_MAPPER_ACES
+	var we = WorldEnvironment.new()
+	we.environment = env
+	preview_vp.add_child(we)
+	var key = DirectionalLight3D.new()
+	key.rotation = Vector3(-0.7, 0.6, 0)
+	key.light_energy = 1.3
+	key.light_color = Color(1.0, 0.9, 0.78)
+	preview_vp.add_child(key)
+	var rim = OmniLight3D.new()
+	rim.position = Vector3(-1.5, 1.8, -1.2)
+	rim.light_color = Color(0.5, 0.7, 1.0)
+	rim.light_energy = 1.5
+	preview_vp.add_child(rim)
+	var floor_m = MeshInstance3D.new()
+	var disc = CylinderMesh.new()
+	disc.top_radius = 0.85
+	disc.bottom_radius = 0.9
+	disc.height = 0.08
+	floor_m.mesh = disc
+	floor_m.material_override = Mats.std("preview_floor", Color(0.16, 0.15, 0.14), 0.9)
+	floor_m.position = Vector3(0, -0.04, 0)
+	preview_vp.add_child(floor_m)
+	var cam = Camera3D.new()
+	cam.fov = 34
+	cam.position = Vector3(4.8, 1.5, 0)
+	preview_vp.add_child(cam)
+	cam.look_at(Vector3(0, 0.66, 0), Vector3.UP)
+	cam.current = true
+
+
+func _refresh_preview() -> void:
+	if preview_view != null:
+		preview_view.queue_free()
+	preview_view = PlayerView.new()
+	preview_vp.add_child(preview_view)
+	preview_view.setup("preview", Profile3D.data.cosmetics, false, false)
+	preview_view.rotation.y = preview_t
+
+
+func _process(delta: float) -> void:
+	if preview != null and preview.visible and preview_view != null:
+		preview_t += delta * 0.6
+		preview_view.rotation.y = preview_t
+		preview_view.animate({"st": "alive", "sp": 0.0, "m": "walk", "l": 1, "c": null}, delta, preview_t)
+
+
 func _refresh_profile() -> void:
 	var li = Profile3D.level_info()
 	profile_label.text = "%s — niveau %d (%d / %d XP) — %d crédits" % [Profile3D.data.name, li.level, li.into, li.next, int(Profile3D.data.coins)]
@@ -60,6 +140,8 @@ func _clear() -> void:
 	for c in content.get_children():
 		c.queue_free()
 	_refresh_profile()
+	if preview != null:
+		preview.visible = false
 
 
 func show_main() -> void:
@@ -188,6 +270,8 @@ func _start() -> void:
 func show_custom() -> void:
 	_clear()
 	content.add_child(UiTheme.title("Personnalisation", 30))
+	preview.visible = true
+	_refresh_preview()
 	content.add_child(UiTheme.label("Purement esthétique : aucun avantage en jeu. Tout se gagne en mission.", 14, Color(0.7, 0.7, 0.7)))
 	var name_edit = LineEdit.new()
 	name_edit.text = Profile3D.data.name
@@ -214,11 +298,23 @@ func show_custom() -> void:
 				else:
 					tag = " (%d cr)" % int(it.get("price", 0))
 			b.text = ("> " if wearing else "") + String(it.name) + tag
+			if slot[0] == "suit":
+				b.icon = _swatch(Color.html(it.color))
+			elif slot[0] == "light":
+				var lc = String(it.color).split(",")
+				b.icon = _swatch(Color(float(lc[0]) / 255.0, float(lc[1]) / 255.0, float(lc[2]) / 255.0))
 			b.custom_minimum_size = Vector2(0, 42)
 			var sl = slot[0]
 			b.pressed.connect(func(): _wear(sl, it))
 			row.add_child(b)
 	content.add_child(UiTheme.button("Retour", show_main))
+
+
+func _swatch(c: Color) -> ImageTexture:
+	var img = Image.create(22, 22, false, Image.FORMAT_RGBA8)
+	img.fill(Color(0.05, 0.05, 0.06))
+	img.fill_rect(Rect2i(2, 2, 18, 18), c)
+	return ImageTexture.create_from_image(img)
 
 
 func _wear(slot: String, it: Dictionary) -> void:
@@ -246,7 +342,8 @@ func show_settings() -> void:
 		sl.value_changed.connect(_set_setting.bind(key))
 		content.add_child(sl)
 	for spec in [["mic", "Micro : ma vraie voix fait du bruit (les créatures l'entendent)"], ["tts", "Voix des bots (synthèse vocale)"],
-			["shadows", "Ombres de la lampe torche (désactiver si le téléphone rame)"]]:
+			["shadows", "Ombres de la lampe torche (désactiver si le téléphone rame)"],
+			["reduce_motion", "Réduire les animations (tremblements de caméra, intro simplifiée)"]]:
 		var c = CheckButton.new()
 		c.text = spec[1]
 		c.button_pressed = bool(s[spec[0]])

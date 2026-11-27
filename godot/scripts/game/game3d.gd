@@ -9,7 +9,7 @@ signal quit_requested
 
 const TICK = 1.0 / 30.0
 const T = WorldBuilder.T
-const EYE = 1.62
+const EYE = 1.28   # hauteur des lunettes d'un Récupérateur
 
 var cfg: Dictionary = {}
 var g                      # GameSim (solo) ou ClientState (en ligne)
@@ -535,7 +535,7 @@ func _render(alpha: float, me_alpha: float, dt: float) -> void:
 	if st == "downed":
 		eye = 0.45
 	elif st == "alive" and me.move_mode == "sneak":
-		eye = 1.12
+		eye = 0.98
 	elif st == "dead":
 		eye = 1.9
 	var spd = float(ms.get("sp", 0.0))
@@ -547,9 +547,10 @@ func _render(alpha: float, me_alpha: float, dt: float) -> void:
 		for l in g.map.lockers:
 			if int(l.id) == me.hidden:
 				mp = Vector2(l.x, l.y)
-		eye = 1.5
+		eye = 1.2
 	shake_amp = maxf(0.0, shake_amp - dt * 3.0)
-	var sh = Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * shake_amp * 0.03
+	var calm = 0.0 if bool(Profile3D.data.get("settings", {}).get("reduce_motion", false)) else 1.0
+	var sh = Vector3(randf_range(-1, 1), randf_range(-1, 1), randf_range(-1, 1)) * shake_amp * 0.03 * calm
 	cam.position = WorldBuilder.to3(mp.x, mp.y, eye + bob_y) + Vector3(cos(-me.angle + PI / 2) * bob_x, 0, 0) + sh
 	cam.rotation = Vector3(pitch, yaw, sin(bob) * 0.006 * spd + (0.5 if st == "downed" else 0.0))
 	# lampe torche
@@ -616,7 +617,7 @@ func _render(alpha: float, me_alpha: float, dt: float) -> void:
 				ca = me.angle
 				h = eye - 0.95
 			else:
-				h = 0.85
+				h = 0.75
 			pos = cp + Vector2(cos(ca), sin(ca)) * 0.45
 		elif float(it.get("f", 0.0)) > 0:
 			h = float(it.f) * 2.0

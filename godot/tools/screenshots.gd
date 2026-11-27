@@ -3,12 +3,15 @@
 extends Node
 
 var out_dir = "user://shots"
+var only = ""     # --only=crew : seulement la galerie des Récupérateurs (vérification rapide)
 
 
 func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--out="):
 			out_dir = a.substr(6)
+		if a.begins_with("--only="):
+			only = a.substr(7)
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	get_tree().create_timer(420.0).timeout.connect(func(): get_tree().quit(2))
 	await _run()
@@ -32,15 +35,27 @@ func _wait(sec: float) -> void:
 
 func _run() -> void:
 	Profile3D.load_profile()
+	if only == "crew":
+		await _crew()
+		return
+	# 0. intro du studio et écran de chargement
+	await _intro()
+	if only == "intro":
+		return
 	# 1. menu
 	var main = load("res://scripts/main.gd").new()
+	main.skip_intro = true
 	add_child(main)
 	await _wait(3.0)
 	await _shot("01_menu")
+	main.menu.show_custom()
+	await _wait(1.0)
+	await _shot("01_menu_personnalisation")
 	main.queue_free()
 	await _wait(0.3)
-	# 2. galerie des créatures
+	# 2. galerie des créatures, puis l'équipe de Récupérateurs
 	await _gallery()
+	await _crew()
 	# 3. partie en pilote automatique (entrepôt, hôtel, laboratoire)
 	var k = 0
 	for mission in ["morvan", "bellevue", "delta7"]:
@@ -76,8 +91,8 @@ func _run() -> void:
 	gm.queue_free()
 
 
-func _gallery() -> void:
-	# petit « studio » : une salle d'entrepôt, une lampe torche, chaque créature face caméra
+# Petit « studio » : une salle d'entrepôt éclairée par une lampe torche tenue par la caméra.
+func _studio() -> Array:
 	var root = Node3D.new()
 	add_child(root)
 	var mats = Mats.theme_set("warehouse", Data.db.THEMES.warehouse.palette)
@@ -129,6 +144,32 @@ func _gallery() -> void:
 	fl.light_color = Color(1.0, 0.9, 0.7)
 	fl.position = Vector3(0.25, -0.15, 0)
 	cam.add_child(fl)
+	return [root, cam]
+
+
+func _intro() -> void:
+	var layer = CanvasLayer.new()
+	add_child(layer)
+	var sp = StudioSplash.new()
+	layer.add_child(sp)
+	await _wait(1.35)
+	await _shot("00_intro_studio")
+	sp.queue_free()
+	var ls = LoadScreen.new()
+	layer.add_child(ls)
+	ls.set_progress(60)
+	await _wait(0.6)
+	await _shot("00_chargement")
+	ls.set_progress(100)
+	await _wait(1.0)
+	await _shot("00_chargement_pret")
+	layer.queue_free()
+	await _wait(0.2)
+
+
+func _gallery() -> void:
+	# chaque créature face caméra
+	var root = _studio()[0]
 	var i = 0
 	for type in Data.db.MONSTERS.keys():
 		var mv = MonsterView.new()
@@ -146,6 +187,62 @@ func _gallery() -> void:
 		await _shot("02_creature_%d_%s" % [i, type])
 		mv.queue_free()
 		i += 1
+	root.queue_free()
+	await _wait(0.2)
+
+
+func _crew() -> void:
+	# l'équipe de Récupérateurs : toutes les tenues, masques et chapeaux, puis les poses
+	var studio = _studio()
+	var root: Node3D = studio[0]
+	var cam: Camera3D = studio[1]
+	cam.position = Vector3(4.6, 1.5, 0.0)
+	cam.look_at(Vector3(0, 0.75, 0), Vector3.UP)
+	var C = Data.db.COSMETICS
+	var lineups = []
+	var masks = C.mask.map(func(x): return x.id)
+	var hats = C.hat.map(func(x): return x.id)
+	for row in 3:
+		var team = []
+		for j in 5:
+			var n = row * 5 + j
+			team.append({"suit": C.suit[n % C.suit.size()].id, "mask": masks[n % masks.size()] if row > 0 else "visor",
+				"hat": hats[n % hats.size()] if row > 0 else ["helmet", "none", "cap", "beanie", "helmet"][j], "light": C.light[n % C.light.size()].id})
+		lineups.append(team)
+	var poses = [{"st": "alive", "sp": 0.0}, {"st": "alive", "sp": 2.2, "m": "walk"}, {"st": "alive", "sp": 3.6, "m": "sprint"},
+		{"st": "alive", "sp": 1.0, "m": "sneak"}, {"st": "alive", "sp": 1.6, "c": "x"}]
+	var r = 0
+	for team in lineups:
+		var views = []
+		for j in team.size():
+			var v = PlayerView.new()
+			root.add_child(v)
+			v.setup("c%d" % j, team[j], false, r == 0)
+			v.position = Vector3(-0.3 * absf(j - 2), 0, (j - 2) * 0.95)
+			v.rotation.y = 0.35 - (j - 2) * 0.12
+			views.append(v)
+		for f in 20:
+			for j in views.size():
+				var pose = poses[j] if r == 2 else poses[0]
+				var s = {"st": pose.st, "sp": pose.sp, "m": pose.get("m", "walk"), "l": 1, "c": pose.get("c")}
+				views[j].animate(s, 1.0 / 30.0, f / 30.0 + j)
+			await get_tree().process_frame
+		await _shot("03_recuperateurs_%d" % r)
+		for v in views:
+			v.queue_free()
+		r += 1
+	# à terre et fantôme
+	var a = PlayerView.new()
+	root.add_child(a)
+	a.setup("d", {"suit": "red"}, false, false)
+	a.animate({"st": "downed", "sp": 0.0, "l": 0, "c": null}, 0.03, 0.0)
+	a.position = Vector3(0, 0, -0.8)
+	var b = PlayerView.new()
+	root.add_child(b)
+	b.setup("e", {"suit": "blue"}, false, false)
+	b.animate({"st": "dead", "sp": 0.0, "l": 0, "c": null}, 0.03, 0.0)
+	b.position = Vector3(0, 0, 0.9)
+	await _shot("03_recuperateurs_3_a_terre")
 	root.queue_free()
 	await _wait(0.2)
 

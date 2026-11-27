@@ -4,7 +4,7 @@ name: Godot 3D
 
 on:
   push:
-    branches: [main, master, ccr-fb0844a4-g9ok83]
+    branches: [main, master, ccr-fb0844a4-g9ok83, ccr-6c3ddce0-g6gq9k]
     paths:
       - 'godot/**'
       - 'shared/**'

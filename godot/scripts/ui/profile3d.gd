@@ -13,7 +13,7 @@ static func defaults() -> Dictionary:
 	return {
 		"name": "Employé", "coins": 0, "xp": 0, "cosmetics": Data.db.DEFAULT_COSMETICS.duplicate(), "equipment": "radio",
 		"owned": {"suit": ["orange", "blue", "green", "red"], "mask": ["visor", "goggles"], "hat": ["none", "helmet"], "light": ["warm"]},
-		"settings": {"sensitivity": 1.0, "volume": 0.8, "mic": false, "tts": true, "shadows": true, "scale": 1.0, "bots": 3},
+		"settings": {"sensitivity": 1.0, "volume": 0.8, "mic": false, "tts": true, "shadows": true, "scale": 1.0, "bots": 3, "reduce_motion": false, "intro_seen": false},
 		"stats": {"missions": 0, "wins": 0, "earned": 0, "revives": 0},
 		"last": {"mission": "morvan", "difficulty": "employe"},
 	}
@@ -21,11 +21,17 @@ static func defaults() -> Dictionary:
 
 static func load_profile() -> Dictionary:
 	data = defaults()
-	if FileAccess.file_exists(PATH):
-		var f = FileAccess.open(PATH, FileAccess.READ)
+	# profil principal, sinon copie de secours si le principal est illisible
+	for path in [PATH, PATH + ".bak"]:
+		if not FileAccess.file_exists(path):
+			continue
+		var f = FileAccess.open(path, FileAccess.READ)
+		if f == null:
+			continue
 		var parsed = JSON.parse_string(f.get_as_text())
 		if parsed is Dictionary:
 			_merge(data, parsed)
+			break
 	return data
 
 
@@ -37,10 +43,22 @@ static func _merge(dst: Dictionary, src: Dictionary) -> void:
 			dst[k] = src[k]
 
 
+# Sauvegarde sûre : écriture dans un fichier temporaire, copie de secours de l'ancienne
+# version, puis remplacement. Un arrêt brutal pendant l'écriture ne corrompt pas le profil.
 static func save() -> void:
-	var f = FileAccess.open(PATH, FileAccess.WRITE)
-	if f != null:
-		f.store_string(JSON.stringify(data, " "))
+	data["version"] = 2
+	var tmp = PATH + ".tmp"
+	var f = FileAccess.open(tmp, FileAccess.WRITE)
+	if f == null:
+		return
+	f.store_string(JSON.stringify(data, " "))
+	f.close()
+	if FileAccess.file_exists(PATH):
+		DirAccess.copy_absolute(PATH, PATH + ".bak")
+	if DirAccess.rename_absolute(tmp, PATH) != OK:
+		# certains systèmes refusent de remplacer un fichier existant
+		DirAccess.remove_absolute(PATH)
+		DirAccess.rename_absolute(tmp, PATH)
 
 
 static func xp_for_level(lvl: int) -> int:
