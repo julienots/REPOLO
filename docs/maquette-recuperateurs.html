@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maquette Récupérateurs</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --orange:#E8742A; --encre:#1B1F24; --lampe:#FFE6A8; --moisi:#6E8B3D; --rouille:#B23A2E;
+  --bg:#0F1214; --txt:#F3EEE4; --mute:#A59F94;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:"Atkinson Hyperlegible",sans-serif;padding:24px 16px}
+h1,h2,.titre{font-family:"Baloo 2",sans-serif}
+h1{margin:0 0 4px;font-size:28px}
+.sous{color:var(--mute);margin:0 0 24px}
+.ecrans{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;align-items:flex-start}
+.cadre{border:3px solid #2a2f35;border-radius:34px;overflow:hidden;position:relative;background:var(--encre);flex:none;box-shadow:0 12px 0 #07090a}
+.portrait{width:390px;height:844px;max-width:100%}
+.paysage{width:844px;height:390px;max-width:100%}
+.legende{text-align:center;color:var(--mute);font-size:14px;margin-top:8px}
+.safe{position:absolute;inset:0;padding:calc(env(safe-area-inset-top) + 48px) 20px 34px}
+/* Boutons en relief, deux tons */
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:56px;border-radius:16px;font:800 20px "Baloo 2";color:var(--encre);background:var(--orange);border:3px solid #7a3510;box-shadow:0 6px 0 #7a3510;margin-bottom:16px;width:100%}
+.btn.sec{background:#2f353c;color:var(--txt);border-color:#11151a;box-shadow:0 6px 0 #11151a}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 #7a3510}
+/* Écran titre */
+.titre-ecran{background:radial-gradient(120% 70% at 50% 30%,#3a2a1a 0%,var(--encre) 60%)}
+.logo{text-align:center;margin-top:18px}
+.logo .l1{font:800 46px/0.9 "Baloo 2";color:var(--orange);text-shadow:0 4px 0 #7a3510,0 6px 0 #000}
+.logo .l2{font:800 54px/0.9 "Baloo 2";color:var(--lampe);text-shadow:0 4px 0 var(--rouille),0 7px 0 #000;letter-spacing:1px}
+.logo .tag{display:inline-block;margin-top:10px;background:var(--moisi);color:var(--encre);font:700 13px "Atkinson Hyperlegible";padding:4px 10px;border-radius:8px;transform:rotate(-2deg)}
+.groupe{display:flex;justify-content:center;align-items:flex-end;margin:28px 0 30px;height:250px}
+.groupe svg{margin:0 -14px}
+/* Jeu */
+.jeu{background:linear-gradient(#22201c,#141310)}
+.couloir{position:absolute;inset:0;background:
+  radial-gradient(38% 55% at 58% 52%,rgba(255,230,168,.55),rgba(255,230,168,.08) 60%,transparent 75%),
+  linear-gradient(90deg,#0b0b0a 0 14%,transparent 14% 86%,#0b0b0a 86%),
+  repeating-linear-gradient(90deg,#2b2721 0 60px,#26221d 60px 62px)}
+.sol{position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(#3a342b,#1a1713);clip-path:polygon(22% 0,78% 0,100% 100%,0 100%)}
+.hud-haut{position:absolute;top:14px;left:calc(env(safe-area-inset-left) + 52px);right:52px;display:flex;justify-content:space-between;align-items:flex-start}
+.quota{background:rgba(27,31,36,.85);border:2px solid #3a4048;border-radius:14px;padding:8px 14px;min-width:190px}
+.quota b{font:800 20px "Baloo 2";color:var(--lampe)}
+.barre{height:10px;border-radius:6px;background:#3a4048;margin-top:6px;overflow:hidden}
+.barre i{display:block;height:100%;width:62%;background:var(--orange)}
+.equipe{display:flex;gap:6px}
+.pastille{width:44px;height:44px;border-radius:12px;background:rgba(27,31,36,.85);border:2px solid #3a4048;display:flex;align-items:center;justify-content:center}
+.bruit{position:absolute;top:80px;left:50%;transform:translateX(-50%);font:700 13px "Atkinson Hyperlegible";color:var(--lampe);background:rgba(178,58,46,.85);padding:4px 10px;border-radius:8px}
+.joy{position:absolute;left:calc(env(safe-area-inset-left) + 56px);bottom:34px;width:120px;height:120px;border-radius:50%;border:3px solid rgba(243,238,228,.35);background:rgba(27,31,36,.4)}
+.joy::after{content:"";position:absolute;left:34px;top:34px;width:52px;height:52px;border-radius:50%;background:rgba(243,238,228,.55)}
+.actions{position:absolute;right:52px;bottom:26px;display:grid;grid-template-columns:repeat(2,64px);gap:12px}
+.rond{width:64px;height:64px;border-radius:50%;background:#2f353c;border:3px solid #11151a;box-shadow:0 5px 0 #11151a;display:flex;align-items:center;justify-content:center;font:800 11px "Baloo 2";color:var(--txt);text-align:center;line-height:1}
+.rond.grand{background:var(--orange);color:var(--encre);border-color:#7a3510;box-shadow:0 5px 0 #7a3510}
+.bras{position:absolute;right:120px;bottom:-12px}
+/* Casier */
+.casier{background:var(--encre)}
+.casier h2{margin:0;font-size:30px;color:var(--lampe)}
+.credits{color:var(--mute);font-size:15px;margin-bottom:6px}
+.scene{height:300px;border-radius:22px;background:radial-gradient(60% 60% at 50% 80%,#3a3328,#1f1d19);border:3px solid #2a2f35;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;margin:10px 0 14px}
+.onglets{display:flex;gap:8px;margin-bottom:12px}
+.onglet{flex:1;min-height:48px;border-radius:12px;background:#2f353c;display:flex;align-items:center;justify-content:center;font:800 15px "Baloo 2"}
+.onglet.on{background:var(--lampe);color:var(--encre)}
+.grille{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.case{aspect-ratio:1;border-radius:14px;border:3px solid #11151a;box-shadow:0 4px 0 #11151a}
+.case.sel{outline:3px solid var(--lampe);outline-offset:2px}
+.prix{font:700 12px "Atkinson Hyperlegible";color:var(--mute);text-align:center;margin-top:-8px}
+@media(max-width:880px){.paysage{transform-origin:top left}}
+</style>
+</head>
+<body>
+<h1 class="titre">Maquette — les Récupérateurs en 3D</h1>
+<p class="sous">3 écrans statiques, aucune logique. Personnage original : corps-galet, lunettes doubles, lampe frontale, hotte de récup, moufles.</p>
+
+<!-- Le personnage : un seul dessin réutilisé, la couleur change via --c / --c2 -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="recup" viewBox="0 0 200 240">
+      <!-- ombre au sol -->
+      <ellipse cx="100" cy="228" rx="62" ry="9" fill="#000" opacity=".35"/>
+      <!-- hotte de récup (dos) -->
+      <rect x="20" y="78" width="46" height="96" rx="12" fill="var(--c2)" stroke="#111" stroke-width="5"/>
+      <rect x="28" y="92" width="30" height="10" rx="4" fill="#111" opacity=".35"/>
+      <!-- jambes courtes -->
+      <rect x="62" y="184" width="30" height="40" rx="12" fill="var(--c2)" stroke="#111" stroke-width="5"/>
+      <rect x="110" y="184" width="30" height="40" rx="12" fill="var(--c2)" stroke="#111" stroke-width="5"/>
+      <rect x="58" y="210" width="40" height="16" rx="7" fill="#1b1f24" stroke="#111" stroke-width="4"/>
+      <rect x="106" y="210" width="40" height="16" rx="7" fill="#1b1f24" stroke="#111" stroke-width="4"/>
+      <!-- corps-galet (plus large en bas, sommet arrondi) -->
+      <path d="M100 22 C152 22 166 70 166 118 L166 168 C166 194 140 200 100 200 C60 200 40 194 40 168 L40 118 C40 70 50 22 100 22Z" fill="var(--c)" stroke="#111" stroke-width="6"/>
+      <!-- palier d'ombre -->
+      <path d="M150 60 C162 86 162 120 162 168 C162 186 148 194 120 196 C142 180 150 130 150 60Z" fill="#000" opacity=".18"/>
+      <!-- bande réfléchissante -->
+      <rect x="44" y="150" width="118" height="10" fill="#e8e5dc" opacity=".85"/>
+      <!-- écusson RX -->
+      <circle cx="132" cy="128" r="11" fill="#1b1f24"/>
+      <text x="132" y="132" font-family="Baloo 2" font-weight="800" font-size="11" fill="var(--lampe)" text-anchor="middle">RX</text>
+      <!-- lunettes doubles (deux verres + sangle), pas de visière unique -->
+      <rect x="44" y="70" width="122" height="12" fill="#1b1f24"/>
+      <circle cx="88" cy="78" r="21" fill="#1b1f24"/>
+      <circle cx="132" cy="78" r="21" fill="#1b1f24"/>
+      <circle cx="88" cy="78" r="14" fill="var(--lampe)"/>
+      <circle cx="132" cy="78" r="14" fill="var(--lampe)"/>
+      <circle cx="83" cy="73" r="4" fill="#fff"/>
+      <circle cx="127" cy="73" r="4" fill="#fff"/>
+      <!-- lampe frontale -->
+      <rect x="98" y="34" width="24" height="16" rx="5" fill="#2f353c" stroke="#111" stroke-width="3"/>
+      <circle cx="110" cy="42" r="5" fill="var(--lampe)"/>
+      <!-- bras à moufles -->
+      <path d="M164 118 C184 126 186 150 178 164" fill="none" stroke="var(--c)" stroke-width="16" stroke-linecap="round"/>
+      <path d="M164 118 C184 126 186 150 178 164" fill="none" stroke="#111" stroke-width="22" stroke-linecap="round" opacity=".0"/>
+      <circle cx="177" cy="168" r="12" fill="#1b1f24" stroke="#111" stroke-width="3"/>
+      <path d="M42 120 C26 130 26 152 34 164" fill="none" stroke="var(--c)" stroke-width="16" stroke-linecap="round"/>
+      <circle cx="35" cy="168" r="12" fill="#1b1f24" stroke="#111" stroke-width="3"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="ecrans">
+
+  <!-- 1. Écran titre -->
+  <div>
+    <div class="cadre portrait titre-ecran">
+      <div class="safe">
+        <div class="logo">
+          <div class="l1">OPÉRATION</div>
+          <div class="l2">PANIQUE</div>
+          <span class="tag">Récup'Express S.A.R.L. — on récupère tout</span>
+        </div>
+        <div class="groupe">
+          <svg width="130" height="156" style="--c:#3a7bd5;--c2:#24518f"><use href="#recup"/></svg>
+          <svg width="170" height="204" style="--c:#E8742A;--c2:#9c4a15"><use href="#recup"/></svg>
+          <svg width="130" height="156" style="--c:#2e9d5b;--c2:#1c6b3c"><use href="#recup"/></svg>
+        </div>
+        <div class="btn">Jouer en solo</div>
+        <div class="btn sec">Multijoueur en ligne</div>
+        <div class="btn sec">Casier</div>
+      </div>
+    </div>
+    <div class="legende">1. Écran titre (portrait)</div>
+  </div>
+
+  <!-- 2. Jeu (le jeu se joue en paysage) -->
+  <div>
+    <div class="cadre paysage jeu">
+      <div class="couloir"></div><div class="sol"></div>
+      <div class="hud-haut">
+        <div class="quota">Quota <b>620 / 1000 ¤</b><div class="barre"><i></i></div></div>
+        <div class="equipe">
+          <div class="pastille"><svg width="34" height="40" style="--c:#E8742A;--c2:#9c4a15"><use href="#recup"/></svg></div>
+          <div class="pastille"><svg width="34" height="40" style="--c:#3a7bd5;--c2:#24518f"><use href="#recup"/></svg></div>
+          <div class="pastille" style="opacity:.45"><svg width="34" height="40" style="--c:#2e9d5b;--c2:#1c6b3c"><use href="#recup"/></svg></div>
+        </div>
+      </div>
+      <div class="bruit">BRUIT FORT — à gauche</div>
+      <div class="joy"></div>
+      <div class="actions">
+        <div class="rond">LAMPE</div><div class="rond">OBJET</div>
+        <div class="rond">LANCER</div><div class="rond grand">ACTION</div>
+      </div>
+    </div>
+    <div class="legende">2. En mission (paysage, vue subjective, coéquipiers en Récupérateurs)</div>
+  </div>
+
+  <!-- 3. Casier -->
+  <div>
+    <div class="cadre portrait casier">
+      <div class="safe">
+        <h2>Casier</h2>
+        <div class="credits">1 240 crédits · niveau 4</div>
+        <div class="scene"><svg width="210" height="252" style="--c:#cf3a3a;--c2:#8a2222"><use href="#recup"/></svg></div>
+        <div class="onglets"><div class="onglet on">Tenue</div><div class="onglet">Masque</div><div class="onglet">Chapeau</div></div>
+        <div class="grille">
+          <div class="case" style="background:#e67e22"></div>
+          <div class="case" style="background:#3a7bd5"></div>
+          <div class="case" style="background:#2e9d5b"></div>
+          <div class="case sel" style="background:#cf3a3a"></div>
+          <div class="case" style="background:#ff7eb6"></div>
+          <div class="case" style="background:#e8e8e8"></div>
+          <div class="case" style="background:#26262b"></div>
+          <div class="case" style="background:#e8c547"></div>
+          <div class="case" style="background:#6b7d3a"></div>
+          <div class="case" style="background:#8e44ad"></div>
+        </div>
+        <div class="btn">Équiper</div>
+      </div>
+    </div>
+    <div class="legende">3. Casier avec aperçu qui tourne</div>
+  </div>
+
+</div>
+</body>
+</html>
