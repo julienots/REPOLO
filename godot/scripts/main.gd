@@ -119,7 +119,7 @@ func _build_backdrop() -> void:
 	for d in w.doors.values():
 		d.target = 1.0
 		d.open = 1.0
-		d.panel.rotation.y = 1.75 * d.dir
+		d.panel.rotation.y = -2.95 * d.dir
 
 
 func _process(delta: float) -> void:

@@ -48,7 +48,10 @@ export function generateMap(themeId, seed, opts = {}) {
       return null;
     }
     const k = mode === 'wide' ? 2 : 1;
-    const start = rng.int(1, cells.length - 1 - k);
+    let start = rng.int(1, cells.length - 1 - k);
+    // une porte se place au milieu du pan de mur (jamais collée à un angle) ; le tirage
+    // est conservé pour garder la même suite aléatoire
+    if (mode === 'door') start = Math.floor((cells.length - k) / 2);
     const placed = [];
     for (let i = 0; i < k; i++) {
       const [x, y] = cells[start + i];

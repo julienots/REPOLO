@@ -53,6 +53,10 @@ func _init(opts: Dictionary) -> void:
 	rng = Rng.new(seed_value ^ 0x5bd1e995)
 	var missions: Dictionary = Data.db.MISSIONS
 	mission_id = opts.get("missionId", "morvan")
+	if mission_id == "random":
+		# « Au hasard » : même tirage que shared/data/missions.js (resolveMissionId)
+		var ids = missions.keys()
+		mission_id = ids[absi(seed_value) % ids.size()]
 	if not missions.has(mission_id):
 		mission_id = "morvan"
 	mission_def = missions[mission_id]

@@ -44,6 +44,10 @@ func build(m: Dictionary) -> void:
 			lamp_color = Color(1.0, 0.78, 0.5)
 		"lab":
 			lamp_color = Color(0.75, 0.92, 1.0)
+		"mall":
+			lamp_color = Color(0.85, 0.95, 1.0)
+		"storage":
+			lamp_color = Color(1.0, 0.84, 0.55)
 	_build_floor_ceiling()
 	_build_walls()
 	_build_furniture()
@@ -245,8 +249,11 @@ func _build_doors() -> void:
 		var along_x = _is_wallish(x - 1, y) or _is_wallish(x + 1, y)
 		var pivot = Node3D.new()
 		var hinge = to3(x, y + 0.5) if along_x else to3(x + 0.5, y)
-		pivot.position = hinge
 		pivot.rotation.y = 0.0 if along_x else -PI / 2
+		# charnière sur une face du mur (côté tiré au hasard) : ouverte, la porte se rabat
+		# à plat contre ce mur au lieu de rester plantée au milieu de la pièce
+		var dir = 1.0 if rng.randf() < 0.5 else -1.0
+		pivot.position = hinge + pivot.basis * Vector3(0, 0, dir * (T * 0.5 - 0.06))
 		add_child(pivot)
 		var panel = _box(Vector3(T * 0.96, DOOR_H, 0.07), mats.door, Vector3(T * 0.5, DOOR_H / 2, 0), pivot)
 		# poignée
@@ -254,7 +261,7 @@ func _build_doors() -> void:
 		# linteau au-dessus de la porte
 		var lintel_pos = to3(x + 0.5, y + 0.5, (H + DOOR_H) / 2)
 		_box(Vector3(T, H - DOOR_H, T), mats.wall, lintel_pos)
-		doors[i] = {"pivot": pivot, "panel": panel, "open": 0.0, "target": 0.0, "broken": false, "dir": 1.0 if rng.randf() < 0.5 else -1.0}
+		doors[i] = {"pivot": pivot, "panel": panel, "open": 0.0, "target": 0.0, "broken": false, "dir": dir}
 
 
 # chaîne d'état des portes de l'instantané : "0" fermée, "1" ouverte, "2" défoncée
@@ -270,14 +277,14 @@ func update_doors(states: String, dt: float) -> void:
 			d.broken = true
 			var p: Node3D = d.pivot
 			p.rotation.z = 0.0
-			d.panel.position = Vector3(T * 0.5, 0.05, 0.6 * d.dir)
+			d.panel.position = Vector3(T * 0.5, 0.05, 0.55 * d.dir)
 			d.panel.rotation = Vector3(PI / 2, 0, rng.randf_range(-0.2, 0.2))
 			continue
 		if d.broken:
 			continue
 		d.target = 1.0 if s == "1" else 0.0
 		d.open = move_toward(d.open, d.target, dt * 2.8)
-		d.panel.rotation.y = d.open * 1.75 * d.dir
+		d.panel.rotation.y = -d.open * 2.95 * d.dir
 
 
 func _build_lockers() -> void:
@@ -433,7 +440,7 @@ func update_lamps(states: String, cam_pos: Vector3, t: float, ambient: float, fl
 	for k in mini(budget, cands.size()):
 		var ln = cands[k][1]
 		ln.light.visible = true
-		var e = 1.6 * ambient
+		var e = 2.4 * ambient
 		var fl = float(ln.data.get("flicker", 0.0)) + flicker_mod
 		if fl > 0:
 			var s = sin(t * 23.0 + ln.phase) * sin(t * 7.3 + ln.phase * 2.0)

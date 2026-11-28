@@ -7,7 +7,7 @@ uniform float fear = 0.0;      // 0..1 proximité d'une créature
 uniform float hurt = 0.0;      // 0..1 blessure récente
 uniform float downed = 0.0;    // 0..1 à terre
 uniform float grain = 0.06;
-uniform float vignette = 0.55;
+uniform float vignette = 0.4;
 uniform float time_s = 0.0;
 uniform float desat = 0.15;
 

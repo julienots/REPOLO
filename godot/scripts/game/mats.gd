@@ -107,6 +107,16 @@ static func theme_set(theme_id: String, pal: Dictionary) -> Dictionary:
 			floor_tile = 0.6
 			wall_pattern = 1
 			wet = 0.35
+		"mall":
+			floor_pattern = 1
+			floor_tile = 1.2
+			wall_pattern = 1
+			wet = 0.55
+		"storage":
+			floor_pattern = 0
+			floor_tile = 1.0
+			wall_pattern = 3
+			wet = 0.25
 	return {
 		"floor": surface(theme_id + "_floor", {"color_a": floor_a, "color_b": floor_b, "grime_color": grime, "pattern": floor_pattern, "tile_size": floor_tile,
 			"scale": 0.3, "roughness_min": 0.45, "roughness_max": 0.92, "bump": 0.5, "stains": 0.6, "wet": wet}),

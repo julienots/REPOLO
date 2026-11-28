@@ -105,7 +105,7 @@ export class LobbyUI {
     // réglages
     const lvl = app.profile.level.level;
     const s = st.settings;
-    fillSelect($('set-mission'), Object.entries(MISSIONS).map(([id, m]) => ({ v: id, t: `${m.name}${lvl < m.unlockLevel && host ? ` (niv. ${m.unlockLevel})` : ''}`, dis: host && lvl < m.unlockLevel })), s.mission);
+    fillSelect($('set-mission'), [{ v: 'random', t: '🎲 Au hasard (lieu tiré au sort)' }, ...Object.entries(MISSIONS).map(([id, m]) => ({ v: id, t: `${m.name}${lvl < m.unlockLevel && host ? ` (niv. ${m.unlockLevel})` : ''}`, dis: host && lvl < m.unlockLevel }))], s.mission);
     fillSelect($('set-difficulty'), Object.entries(DIFFICULTIES).map(([id, d]) => ({ v: id, t: `${d.name}${host && d.level >= 3 && lvl < 3 ? ' (niv. 3)' : ''}`, dis: host && d.level >= 3 && lvl < 3 })), s.difficulty);
     fillSelect($('set-variant'), [{ v: 'random', t: 'Surprise (aléatoire)' }, ...VARIANTS.map((v) => ({ v: v.id, t: v.name }))], s.variant);
     fillSelect($('set-teamsize'), Array.from({ length: LIMITS.absoluteMaxPlayers }, (_, i) => ({ v: String(i + 1), t: `${i + 1}` })), String(s.teamSize));
@@ -114,7 +114,8 @@ export class LobbyUI {
     $('set-locked').checked = s.locked;
     for (const id of ['set-mission', 'set-difficulty', 'set-variant', 'set-teamsize', 'set-maxplayers', 'set-fillbots', 'set-locked']) $(id).disabled = !host;
     const mission = MISSIONS[s.mission];
-    $('mission-brief').textContent = `${THEMES[mission.theme]?.blurb || ''} ${mission.brief}`;
+    $('mission-brief').textContent = mission ? `${THEMES[mission.theme]?.blurb || ''} ${mission.brief}`
+      : `Le lieu est tiré au sort au lancement parmi les ${Object.keys(MISSIONS).length} : ${Object.values(MISSIONS).map((m) => THEMES[m.theme]?.name).join(', ')}.`;
     $('difficulty-desc').textContent = DIFFICULTIES[s.difficulty]?.desc || '';
     $('settings-note').textContent = host ? (s.fillBots ? 'Les places libres seront occupées par des bots.' : '') : 'Seul l\'hôte peut modifier la mission.';
 

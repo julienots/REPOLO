@@ -41,7 +41,7 @@ export class Room {
     this.clients = new Map();             // clientId → memberId
     this.state = 'lobby';
     this.settings = {
-      mission: 'morvan', difficulty: 'employe', variant: 'random',
+      mission: 'random', difficulty: 'employe', variant: 'random',
       teamSize: 4, fillBots: true, bots: [], maxPlayers: Math.min(opts.maxPlayers || LIMITS.defaultMaxPlayers, LIMITS.absoluteMaxPlayers),
       locked: false,
     };
@@ -215,7 +215,7 @@ export class Room {
       case 'settings': {
         if (!isHost) return this.send(clientId, { t: 'error', msg: 'Seul l\'hôte peut modifier les réglages.' });
         const s = this.settings;
-        if (msg.mission && MISSIONS[msg.mission]) s.mission = msg.mission;
+        if (msg.mission && (MISSIONS[msg.mission] || msg.mission === 'random')) s.mission = msg.mission;
         if (msg.difficulty && DIFFICULTIES[msg.difficulty]) s.difficulty = msg.difficulty;
         if (msg.variant) s.variant = msg.variant;
         if (msg.teamSize) s.teamSize = Math.max(1, Math.min(LIMITS.absoluteMaxPlayers, msg.teamSize | 0));

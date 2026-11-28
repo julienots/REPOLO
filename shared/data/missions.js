@@ -34,7 +34,35 @@ export const MISSIONS = {
     required: ['echo'],
     unlockLevel: 3,
   },
+  soleil: {
+    name: 'Soldes à la galerie Soleil-Couchant',
+    theme: 'mall',
+    brief: 'Le centre a fermé un soir de soldes et n\'a jamais rouvert. Les vitrines attendent toujours leurs clients.',
+    quota: 1850, time: 560,
+    monsterPool: ['mannequine', 'echo', 'sauveteur', 'sourdine', 'invite', 'inspecteur', 'berger', 'demenageur'],
+    required: ['mannequine'],
+    unlockLevel: 1,
+  },
+  gardemeubles: {
+    name: 'Vide-box au Garde-meubles',
+    theme: 'storage',
+    brief: 'Les loyers des box ne sont plus payés depuis longtemps. Ce qu\'il y a dedans est à nous. En principe.',
+    quota: 1800, time: 540,
+    monsterPool: ['demenageur', 'berger', 'invite', 'sourdine', 'mannequine', 'echo', 'inspecteur', 'sauveteur'],
+    required: ['demenageur'],
+    unlockLevel: 1,
+  },
 };
+
+// « Au hasard » : le lieu est tiré au sort à partir de la graine de la partie (même résultat
+// sur le serveur, dans le navigateur et dans la version 3D).
+export const RANDOM_MISSION = 'random';
+export function resolveMissionId(id, seed) {
+  if (MISSIONS[id]) return id;
+  if (id !== RANDOM_MISSION) return 'morvan';
+  const ids = Object.keys(MISSIONS);
+  return ids[Math.abs(seed | 0) % ids.length];
+}
 
 // Variantes tirées au hasard au lancement (modifient les règles de la mission).
 export const VARIANTS = [

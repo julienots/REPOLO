@@ -316,7 +316,7 @@ export class Renderer {
     d.globalCompositeOperation = 'source-over';
     const fog = this.theme.palette.fog;
     const reveal = v.mods.rv;
-    d.fillStyle = reveal ? `rgba(${fog},0.25)` : `rgba(${fog},${v.me?.dead ? 0.8 : 0.955})`;
+    d.fillStyle = reveal ? `rgba(${fog},0.25)` : `rgba(${fog},${v.me?.dead ? 0.7 : 0.82})`;
     d.fillRect(0, 0, this.w, this.h);
     d.globalCompositeOperation = 'destination-out';
     const rays = this.q.rays;

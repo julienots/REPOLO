@@ -58,6 +58,10 @@ static func generate(theme_id: String, seed_value: int, loot_mul := 1.0) -> Dict
 			return null
 		var k = 2 if mode == "wide" else 1
 		var start = rng.int_range(1, cells.size() - 1 - k)
+		# une porte se place au milieu du pan de mur (jamais collée à un angle) ; le tirage
+		# est conservé pour garder la même suite aléatoire
+		if mode == "door":
+			start = int(floor((cells.size() - k) / 2.0))
 		var placed = []
 		for i in k:
 			var c2: Array = cells[start + i]

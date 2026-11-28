@@ -13,9 +13,9 @@ static func defaults() -> Dictionary:
 	return {
 		"name": "Employé", "coins": 0, "xp": 0, "cosmetics": Data.db.DEFAULT_COSMETICS.duplicate(), "equipment": "radio",
 		"owned": {"suit": ["orange", "blue", "green", "red"], "mask": ["visor", "goggles"], "hat": ["none", "helmet"], "light": ["warm"]},
-		"settings": {"sensitivity": 1.0, "volume": 0.8, "mic": false, "tts": true, "shadows": true, "scale": 1.0, "bots": 3, "reduce_motion": false, "intro_seen": false},
+		"settings": {"sensitivity": 1.0, "volume": 0.8, "mic": false, "tts": true, "shadows": true, "scale": 1.0, "bots": 3, "reduce_motion": false, "intro_seen": false, "brightness": 1.35},
 		"stats": {"missions": 0, "wins": 0, "earned": 0, "revives": 0},
-		"last": {"mission": "morvan", "difficulty": "employe"},
+		"last": {"mission": "random", "difficulty": "employe"},
 	}
 
 

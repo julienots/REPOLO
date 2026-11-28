@@ -29,4 +29,22 @@ export const THEMES = {
     lootCount: 38,
     palette: { floor: '#2b3436', floor2: '#283134', wall: '#46545a', wallTop: '#6f8890', shelf: '#4f5d63', table: '#59666b', debris: '#9fb0b0', grate: '#556a70', fog: '4,10,10', accent: '#58e0c0' },
   },
+  mall: {
+    name: 'Galerie marchande Soleil-Couchant',
+    blurb: 'Un centre commercial plongé dans le noir. Une grande allée, des boutiques aux rideaux à moitié levés, des escalators à l\'arrêt.',
+    layout: { cellsX: 7, cellsY: 5, cellSize: 8, mergeChance: 0.3, extraLinks: 0.45, doorChance: 0.35, wideChance: 0.6, corridorRows: [2] },
+    props: { shelfRows: 0.6, tables: 0.45, debris: 0.35, grates: 0.1, lockers: 0.45, lamps: 0.3 },
+    loot: { tv: 3, statue: 2, clock: 2, trophy: 2, gnome: 2, painting: 1, bottle: 2, suitcase: 2, radio_old: 2, vase: 1, toolbox: 1, junk: 3 },
+    lootCount: 40,
+    palette: { floor: '#3b3f44', floor2: '#363a3f', wall: '#5d6670', wallTop: '#8b97a3', shelf: '#7a6a58', table: '#4e5560', debris: '#a4acb4', grate: '#4c5560', fog: '6,8,12', accent: '#ff6fae' },
+  },
+  storage: {
+    name: 'Garde-meubles des Objets Étranges',
+    blurb: 'Des box de stockage numérotés à perte de vue. Certains cadenas sont fermés de l\'intérieur.',
+    layout: { cellsX: 7, cellsY: 6, cellSize: 6, mergeChance: 0.12, extraLinks: 0.25, doorChance: 0.85, wideChance: 0.15, corridorRows: [1, 4] },
+    props: { shelfRows: 0.55, tables: 0.3, debris: 0.3, grates: 0.2, lockers: 0.7, lamps: 0.4 },
+    loot: { jar: 2, chandelier: 1, piano: 1, statue: 2, safe: 2, painting: 2, clock: 2, gnome: 2, vase: 2, crate: 3, suitcase: 2, junk: 2 },
+    lootCount: 40,
+    palette: { floor: '#3d3a33', floor2: '#38352f', wall: '#6a6152', wallTop: '#938770', shelf: '#5b4a35', table: '#5a5045', debris: '#9a8f80', grate: '#4f5652', fog: '10,9,6', accent: '#f2c14e' },
+  },
 };

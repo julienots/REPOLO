@@ -51,7 +51,7 @@ func _ready() -> void:
 	content.add_theme_constant_override("separation", 10)
 	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(content)
-	sel.mission = Profile3D.data.last.get("mission", "morvan")
+	sel.mission = Profile3D.data.last.get("mission", "random")
 	sel.difficulty = Profile3D.data.last.get("difficulty", "employe")
 	sel.bots = int(Profile3D.data.settings.get("bots", 3))
 	show_main()
@@ -177,7 +177,7 @@ func show_solo() -> void:
 	_clear()
 	content.add_child(UiTheme.title("Mission solo", 30))
 	var lvl = Profile3D.level_info().level
-	var ms = []
+	var ms = [["random", "Au hasard (lieu tiré au sort)", false]]
 	for id in Data.db.MISSIONS:
 		var m = Data.db.MISSIONS[id]
 		var locked = lvl < int(m.get("unlockLevel", 1))
@@ -250,8 +250,14 @@ func _brief() -> void:
 	var b = content.get_node_or_null("Brief")
 	if b == null:
 		return
-	var m = Data.db.MISSIONS[sel.mission]
 	var eq = Data.db.EQUIPMENT.get(Profile3D.data.equipment, {})
+	if not Data.db.MISSIONS.has(sel.mission):
+		var names = []
+		for id in Data.db.MISSIONS:
+			names.append(Data.db.THEMES[Data.db.MISSIONS[id].theme].name)
+		b.text = "Le lieu est tiré au sort au lancement : %s.\nÉquipement : %s" % [", ".join(names), eq.get("desc", "")]
+		return
+	var m = Data.db.MISSIONS[sel.mission]
 	b.text = "%s\nÉquipement : %s" % [m.brief, eq.get("desc", "")]
 
 
@@ -330,7 +336,7 @@ func show_settings() -> void:
 	_clear()
 	var s = Profile3D.data.settings
 	content.add_child(UiTheme.title("Réglages", 30))
-	for spec in [["sensitivity", "Sensibilité de la visée", 0.3, 3.0], ["volume", "Volume", 0.0, 1.0]]:
+	for spec in [["brightness", "Luminosité (plus haut = moins sombre)", 0.8, 2.2], ["sensitivity", "Sensibilité de la visée", 0.3, 3.0], ["volume", "Volume", 0.0, 1.0]]:
 		content.add_child(UiTheme.label(spec[1], 16))
 		var sl = HSlider.new()
 		sl.min_value = spec[2]
@@ -460,12 +466,12 @@ func show_lobby(l: Dictionary, my_id: String) -> void:
 		tags.append(m.get("platform", "pc"))
 		content.add_child(UiTheme.label("%s%s — %s" % ["> " if m.id == my_id else "", m.name, ", ".join(tags)], 16))
 	var st = l.settings
-	var mi = Data.db.MISSIONS.get(st.mission, {})
+	var mi = Data.db.MISSIONS.get(st.mission, {"name": "Au hasard"})
 	var di = Data.db.DIFFICULTIES.get(st.difficulty, {})
 	content.add_child(UiTheme.label("Mission : %s — difficulté : %s — équipe de %d %s" % [mi.get("name", st.mission), di.get("name", st.difficulty), int(st.teamSize),
 		"(complétée par des bots)" if st.fillBots else ""], 15, UiTheme.ACCENT))
 	if me_host:
-		var ms = []
+		var ms = [["random", "Au hasard (lieu tiré au sort)"]]
 		for id in Data.db.MISSIONS:
 			ms.append([id, Data.db.MISSIONS[id].name])
 		content.add_child(_option(ms, st.mission, func(v): net_send.emit({"t": "settings", "mission": v})))

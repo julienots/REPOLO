@@ -58,13 +58,13 @@ func _run() -> void:
 	await _crew()
 	# 3. partie en pilote automatique (entrepôt, hôtel, laboratoire)
 	var k = 0
-	for mission in ["morvan", "bellevue", "delta7"]:
+	for mission in Data.db.MISSIONS.keys():
 		var g = Game3D.new()
 		g.setup({"mission": mission, "difficulty": "employe", "bots": 3, "seed": 4242 + k, "autopilot": true, "shadows": true, "tts": false, "volume": 0.0})
 		add_child(g)
 		await _wait(4.0)
 		await _shot("%02d_partie_%s_debut" % [3 + k * 2, mission])
-		await _wait(14.0)
+		await _wait(10.0)
 		await _shot("%02d_partie_%s_suite" % [4 + k * 2, mission])
 		g.queue_free()
 		await _wait(0.3)

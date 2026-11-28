@@ -141,13 +141,14 @@ func _build_scene() -> void:
 	var fogc = String(Data.db.THEMES[g.map.theme].palette.fog).split(",")
 	var fog_col = Color(float(fogc[0]) / 255.0, float(fogc[1]) / 255.0, float(fogc[2]) / 255.0)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = fog_col.lightened(0.25)
+	env.ambient_light_color = fog_col.lightened(0.42)
 	env.ambient_light_energy = 0.55
 	env.tonemap_mode = Environment.TONE_MAPPER_ACES
-	env.tonemap_exposure = 1.1
+	# luminosité réglable (Réglages) : 1,0 = sombre « horreur », défaut 1,35
+	env.tonemap_exposure = 1.1 * float(Profile3D.data.get("settings", {}).get("brightness", 1.35))
 	env.fog_enabled = true
-	env.fog_light_color = fog_col
-	env.fog_density = 0.055
+	env.fog_light_color = fog_col.lightened(0.15)
+	env.fog_density = 0.035
 	env.glow_enabled = true
 	env.glow_intensity = 0.7
 	env.glow_bloom = 0.05
@@ -556,7 +557,7 @@ func _render(alpha: float, me_alpha: float, dt: float) -> void:
 	# lampe torche
 	flash_flicker -= dt
 	var light_on = me.light and me.battery > 0 and st == "alive" and me.hidden == 0
-	var fl_energy = 4.0 * (0.6 + 0.4 * clampf(me.battery * 4.0, 0.0, 1.0))
+	var fl_energy = 5.5 * (0.6 + 0.4 * clampf(me.battery * 4.0, 0.0, 1.0))
 	if me.flicker_t > 0 or float(snap.mods.get("fk", 0)) > 0 or me.battery < 0.12:
 		if fmod(t * 17.0, 1.0) < 0.35:
 			fl_energy *= 0.1
@@ -565,7 +566,7 @@ func _render(alpha: float, me_alpha: float, dt: float) -> void:
 	flash.spot_range = g.S("flashlightRange") * T * float(snap.mods.get("fr", 1.0)) * (1.3 if me.equipment == "bigLight" else 1.0)
 	# éclairage ambiant (événements « black-out », « surtension »...)
 	var al = float(snap.mods.get("al", 1.0))
-	env.ambient_light_energy = 0.12 + 0.45 * al if st != "dead" else 1.4
+	env.ambient_light_energy = 0.3 + 0.75 * al if st != "dead" else 1.4
 	world.update_lamps(snap.lamps, cam.position, t, al, float(snap.mods.get("fk", 0)))
 	world.update_doors(snap.doors, dt)
 	world.set_lever_ready(int(snap.mission.d) >= int(snap.mission.q))
@@ -581,6 +582,8 @@ func _render(alpha: float, me_alpha: float, dt: float) -> void:
 		var a = float(p.a) if p.id != my_id else me.angle
 		v.rotation.y = lerp_angle(v.rotation.y, -a, minf(1.0, dt * 14.0))
 		v.animate(p, dt, t)
+		if p.id != my_id and v.visible and v.position.distance_to(Vector3(cam.position.x, 0, cam.position.z)) < 1.05:
+			v.visible = false     # coéquipier collé à la caméra (départ, couloir étroit) : on ne voit pas l'intérieur
 		if p.id == my_id:
 			v.visible = false     # vue subjective : on ne dessine pas son propre corps
 		if p.st == "dead" and st != "dead":
@@ -615,7 +618,7 @@ func _render(alpha: float, me_alpha: float, dt: float) -> void:
 				# objet porté par soi : devant la caméra
 				cp = mp
 				ca = me.angle
-				h = eye - 0.95
+				h = eye * 0.41
 			else:
 				h = 0.75
 			pos = cp + Vector2(cos(ca), sin(ca)) * 0.45

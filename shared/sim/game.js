@@ -5,7 +5,7 @@ import { makeRng } from '../util/rng.js';
 import { dist, angleTo, clamp } from '../util/math.js';
 import { generateMap, serializeMap } from '../map/generator.js';
 import { T, moveCircle, collides, unstick } from '../map/grid.js';
-import { MISSIONS, DIFFICULTIES, VARIANTS, SIDE_OBJECTIVES } from '../data/missions.js';
+import { MISSIONS, resolveMissionId, DIFFICULTIES, VARIANTS, SIDE_OBJECTIVES } from '../data/missions.js';
 import { EQUIPMENT } from '../data/equipment.js';
 import { BOT_PROFILES } from '../data/bots.js';
 import { MONSTERS } from '../data/monsters.js';
@@ -24,7 +24,7 @@ export class Game {
   constructor(opts) {
     this.seed = opts.seed ?? (Math.random() * 2 ** 31) | 0;
     this.rng = makeRng(this.seed ^ 0x5bd1e995);
-    this.missionId = MISSIONS[opts.missionId] ? opts.missionId : 'morvan';
+    this.missionId = resolveMissionId(opts.missionId, this.seed);
     this.missionDef = MISSIONS[this.missionId];
     this.diffId = DIFFICULTIES[opts.difficulty] ? opts.difficulty : 'employe';
     this.diff = DIFFICULTIES[this.diffId];
