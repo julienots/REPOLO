@@ -1594,7 +1594,7 @@
    },
    "props": {
     "shelfRows": 0.75,
-    "tables": 0.3,
+    "tables": 0.4,
     "debris": 0.45,
     "grates": 0.25,
     "lockers": 0.5,
@@ -1647,7 +1647,7 @@
    },
    "props": {
     "shelfRows": 0.25,
-    "tables": 0.75,
+    "tables": 0.85,
     "debris": 0.15,
     "grates": 0,
     "lockers": 0.8,
@@ -1697,7 +1697,7 @@
    },
    "props": {
     "shelfRows": 0.45,
-    "tables": 0.6,
+    "tables": 0.7,
     "debris": 0.2,
     "grates": 0.55,
     "lockers": 0.55,
@@ -1746,7 +1746,7 @@
    },
    "props": {
     "shelfRows": 0.6,
-    "tables": 0.45,
+    "tables": 0.55,
     "debris": 0.35,
     "grates": 0.1,
     "lockers": 0.45,
@@ -1798,7 +1798,7 @@
    },
    "props": {
     "shelfRows": 0.55,
-    "tables": 0.3,
+    "tables": 0.4,
     "debris": 0.3,
     "grates": 0.2,
     "lockers": 0.7,
